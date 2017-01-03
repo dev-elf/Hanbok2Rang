@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     android:orientation="vertical">
+
     <!-- Name Card -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -41,26 +42,13 @@
             android:text="@string/group2"/>
     </LinearLayout>
 
-    <LinearLayout style="@style/menuLayout">
-        <TextView style="@style/menuText"
-            android:onClick="onMenuClickListener"
-            android:id="@+id/g2_menu1"
-            android:text="@string/g2_menu1"/>
-    </LinearLayout>
-
-    <LinearLayout style="@style/menuLayout">
-        <TextView style="@style/menuText"
-            android:onClick="onMenuClickListener"
-            android:id="@+id/g2_menu2"
-            android:text="@string/g2_menu2"/>
-    </LinearLayout>
-
-    <LinearLayout style="@style/menuLayout">
-        <TextView style="@style/menuText"
-            android:onClick="onMenuClickListener"
-            android:id="@+id/g2_menu3"
-            android:text="@string/g2_menu3"/>
-    </LinearLayout>
+    <ListView
+        android:background="@color/menuBg"
+        android:id="@+id/bookMarkListView"
+        android:divider="@color/colorPrimaryDark"
+        android:dividerHeight="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 
 </LinearLayout>

@@ -1,20 +1,25 @@
 package mountainq.organization.dongguk.hanbokapp;
 
+
 import android.Manifest;
-import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +44,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import mountainq.organization.dongguk.hanbokapp.activities.NavigationDrawerActivity;
+import mountainq.organization.dongguk.hanbokapp.adapters.BookMarkAdapter;
+import mountainq.organization.dongguk.hanbokapp.adapters.LocationAdapter;
 import mountainq.organization.dongguk.hanbokapp.datas.AA_StaticDatas;
+import mountainq.organization.dongguk.hanbokapp.datas.BookMark;
+import mountainq.organization.dongguk.hanbokapp.datas.DataBaseManager;
 import mountainq.organization.dongguk.hanbokapp.datas.LocationItem;
 import mountainq.organization.dongguk.hanbokapp.parsers.TourAPIParser;
 import mountainq.organization.dongguk.hanbokapp.search.Item;
@@ -58,31 +67,53 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
      * 종원 커스텀
      */
     private static final String LOG_TAG = "MainActivity";
-
     private MapView mapView;
     private HashMap<Integer, Item> mTagItemMap = new HashMap<Integer, Item>();
     private boolean isUsingCustomLocationMarker = false;
-    /**
-     * 검색 창
-     */
-    EditText searchEditText;
-    ImageView searchButton;
+
+    private static final String KEYWORD = "keyword";
+    private static final String LOCATION = "location";
+    private AA_StaticDatas mData = AA_StaticDatas.getInstance();
+
+    private static final String DB_INITIAL = "initial";
+    private static final String DB_INSERT = "insert";
+    private static final String DB_DELETE = "delete";
 
     /**
      * 맵뷰를 가져오기
      */
     FrameLayout mainContainer;
-    RelativeLayout mapViewContainer;
 
 
+    /**
+     * 즐겨찾기 리스트 가져오기
+     */
+    ListView bookMarkListView;
+    BookMarkAdapter bookMarkAdapter;
+    private ArrayList<BookMark> bookMarks = new ArrayList<>();
+
+
+    /**
+     * 검색 리스트
+     */
+    LocationAdapter locationAdapter;
+    ListView searchListView;
+    EditText searchEditText;
+    ImageView searchButton;
     private ArrayList<LocationItem> items = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.activity_main);
+        mContext = this;
         mainContainer = (FrameLayout) findViewById(R.id.mapFrame);
+        searchListView = (ListView) findViewById(R.id.searchListView);
+        searchEditText = (EditText) findViewById(R.id.searchet);
+        bookMarkListView = (ListView) findViewById(R.id.bookMarkListView);
+        getBookMarkList();
 
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        ActivityCompat.requestPermissions(this, new String[]{
+        Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         MapLayout mapLayout = new MapLayout(this);
         mapView = mapLayout.getMapView();
         mapView.setDaumMapApiKey(DAUM_MAPS_ANDROID_APP_API_KEY);
@@ -109,14 +140,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 break;
             case R.id.group2:
                 break;
-            case R.id.g2_menu1:
-                break;
-            case R.id.g2_menu2:
-                break;
-            case R.id.g2_menu3:
-                break;
         }
-        startActivity(intent);
+        if(intent != null) startActivity(intent);
     }
 
     public void onFloatingButtonClickListener(View v){
@@ -171,34 +196,104 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             case R.id.mapFunctionZoomOut:
                 mapView.zoomOut(true);
                 break;
+            case R.id.searchbtn:
+                searchByKeyword(searchEditText.getText().toString());
+                break;
         }
+    }
+
+    private void insertBookMark(BookMark item){
+        new DBTask().execute(DB_INSERT, String.valueOf(item.getPrimeKey()), item.getLocationName(), String.valueOf(item.getLon()), String.valueOf(item.getLat()));
+    }
+
+    private void deleteBookMark(BookMark item){
+        deleteBookMark(item.getPrimeKey());
+    }
+
+    private void deleteBookMark(int primeKey){
+        new DBTask().execute(DB_DELETE, String.valueOf(primeKey));
+    }
+
+    private void getBookMarkList(){
+        new DBTask().execute(DB_INITIAL);
+
+    }
+
+    class DBTask extends AsyncTask<String, Integer, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            DataBaseManager dbm = new DataBaseManager(mContext);
+            switch (params[0]){
+                case DB_INITIAL:
+                    bookMarks = dbm.printList();
+                    return DB_INITIAL;
+                case DB_INSERT:
+                    dbm.insert(params[1], params[2], params[3], params[4]);
+                    break;
+                case DB_DELETE:
+                    dbm.delete(params[1]);
+                    break;
+            }
+            bookMarks = dbm.printList();
+            bookMarkAdapter.notifyDataSetChanged();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if(s.equals(DB_INITIAL)){
+                bookMarkAdapter = new BookMarkAdapter(mContext, bookMarks);
+                bookMarkListView.setAdapter(bookMarkAdapter);
+            }
+        }
+    }
+
+    private void searchByKeyword(String keyword){
+        new SearchTask().execute(KEYWORD, keyword);
+    }
+
+    private void searchByLocation(double lon, double lat){
+        new SearchTask().execute(LOCATION, String.valueOf(lon), String.valueOf(lat));
     }
 
 
     /**
      * 데이터 통신 관광 API로부터 관광지 정보를 받아와 리스트로 출력한다.
      */
-    class SearchTask extends AsyncTask<String, Integer, Void> {
+    class SearchTask extends AsyncTask<String, Integer, String> {
 
         private URL url = null;
         HttpURLConnection connection = null;
 
         @Override
-        protected Void doInBackground(String... params) {
-            String keyword = "";
-            Log.d("Test", "SearchTask is doing");
-            try {
-                keyword = URLEncoder.encode(params[0], "UTF-8");
-            } catch (IOException e) {
-                e.printStackTrace();
+        protected String  doInBackground(String... params) {
+            String keyword = "", lon="", lat="";
+
+            if(params[0].equals(KEYWORD)){
+                try {
+                    keyword = URLEncoder.encode(params[1], "UTF-8");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                lon = params[1];
+                lat = params[2];
+
             }
+            Log.d("Test", "SearchTask is doing");
 
             try {
-                url = new URL(AA_StaticDatas.TOUR_API_LOCATION_BASED_LIST +
-                        "&mapX=" + 126.993263 +
-                        "&mapY=" + 37.560268 +
-                        "&radius=" + 1000
-                        );
+                if(params[0].equals(KEYWORD)){
+                    url = new URL(AA_StaticDatas.TOUR_API_KEYWORD + keyword);
+                } else {
+                    url = new URL(AA_StaticDatas.TOUR_API_LOCATION_BASED_LIST +
+                            "&mapX=" + lon +
+                            "&mapY=" + lat +
+                            "&radius=" + 1000
+                    );
+                    Log.d("test", "lon = " + lon + "   lat = " + lat);
+                }
+
                 connection = (HttpURLConnection) url.openConnection();
                 int code = connection.getResponseCode();
                 switch (code) {
@@ -215,24 +310,62 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-            return null;
+            if(params[0].equals(KEYWORD)) return KEYWORD;
+            else return LOCATION;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-//            searchAdapter = new TourSearchAdapter(items, mContext);
-//            searchList.setAdapter(searchAdapter);
-//            Log.d("Test", "parsed item : " + items.toString());
+        protected void onPostExecute(String param) {
+            locationAdapter = new LocationAdapter(items, mContext);
+            Log.d("Test", "parsed item : " + items.toString());
+            if(param.equals(KEYWORD)){
+                searchListView.setAdapter(locationAdapter);
 //            showList();
-//            searchEt.setTextColor(StaticData.WHITE_TEXT_COLOR);
-//            searchEt.setBackgroundColor(StaticData.MAIN_COLOR);
+//            searchEditText.setTextColor(StaticData.WHITE_TEXT_COLOR);
+//            searchEditText.setBackgroundColor(StaticData.MAIN_COLOR);
 
-//            View v = getCurrentFocus();
-//            if (v != null) {
-//                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-//            }
+                View v = getCurrentFocus();
+                if (v != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+            } else {
+                //알림창에서 확인후 추천
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setMessage("대여점 근처의 관광지 추천 받으시겠습니까?")
+                        .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                showLocationBasedList(locationAdapter);
+                                dialog.dismiss();
+                            }
+                        }).setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+                dialog.show();
+            }
+        }
+
+        private void showLocationBasedList(LocationAdapter locationAdapter){
+            View tempView = View.inflate(MainActivity.this, R.layout.zz_dialogue, null);
+            ListView newListView = (ListView) tempView.findViewById(R.id.searchListView);
+            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(mData.getWidth()*4/5, mData.getWidth()*4/5);
+            newListView.setLayoutParams(llp);
+            newListView.setAdapter(locationAdapter);
+
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("대여점 주변 정보")
+                    .setView(tempView)
+                    .setNegativeButton("닫기", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).create();
+            dialog.show();
         }
 
     }
@@ -437,10 +570,11 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         Object content = url.getContent();
         return content;
     }
+
     //말풍선 커스텀
     @Override
     public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
-        Item item = mTagItemMap.get(mapPOIItem.getTag());
+        final Item item = mTagItemMap.get(mapPOIItem.getTag());
         StringBuilder sb = new StringBuilder();
         sb.append("id=").append(item.id).append("\n");
         sb.append("title=").append(item.title).append("\n");
@@ -458,7 +592,12 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setTitle("DaumMapLibrarySample");
         alertDialog.setMessage( sb.toString());
-        alertDialog.setPositiveButton("OK", null);
+        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                searchByLocation(item.longitude, item.latitude);
+            }
+        });
         alertDialog.show();
     }
 

@@ -28,7 +28,8 @@ public class AA_StaticDatas {
     private static final String MOBILE_OS = "AND";
     private static final String CONTENT_TYPE_ID = "12";
     private static final String APP_NAME = "Hanbok";
-    public static final String TOUR_API_LOCATION_BASED_LIST = "http://api.visitkorea.or.kr/openapi/service/rest/KorService/searchKeyword?ServiceKey="+SERVICE_KEY+"&MobileOS="+MOBILE_OS+"&MobileApp="+APP_NAME+"&ContentTypeId="+CONTENT_TYPE_ID;
+    public static final String TOUR_API_LOCATION_BASED_LIST = "http://api.visitkorea.or.kr/openapi/service/rest/KorService/locationBasedList?ServiceKey="+SERVICE_KEY+"&MobileOS="+MOBILE_OS+"&MobileApp="+APP_NAME+"&ContentTypeId="+CONTENT_TYPE_ID;
+    public static final String TOUR_API_KEYWORD = "http://api.visitkorea.or.kr/openapi/service/rest/KorService/searchKeyword?ServiceKey="+SERVICE_KEY+"&MobileOS="+MOBILE_OS+"&MobileApp="+APP_NAME+"&ContentTypeId="+CONTENT_TYPE_ID+"&areaCode=1"+"&keyword=";
 
 
     public static final String DAUM_MAPS_ANDROID_APP_API_KEY = "5f2c3efefb03e28627cbf90863bfd053";

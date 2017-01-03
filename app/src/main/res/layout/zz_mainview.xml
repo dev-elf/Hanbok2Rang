@@ -47,9 +47,10 @@
 
             <ImageView
                 android:id="@+id/searchbtn"
+                android:onClick="onFloatingButtonClickListener"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@android:color/transparent"
+                android:background="@android:color/darker_gray"
                 android:padding="3dp"
                 android:scaleType="centerInside" />
         </LinearLayout>
@@ -127,7 +128,9 @@
 
 
             <ListView
-                android:id="@+id/searchlist"
+                android:id="@+id/searchListView"
+                android:divider="@color/colorPrimaryDark"
+                android:dividerHeight="1dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone" />
