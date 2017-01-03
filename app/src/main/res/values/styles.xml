@@ -36,4 +36,9 @@
         <item name="android:textColor">@color/whiteText</item>
     </style>
 
+    <style name="floatingBtn">
+        <item name="android:background">@drawable/zz_btn_bg</item>
+        <item name="android:padding">6dp</item>
+    </style>
+
 </resources>

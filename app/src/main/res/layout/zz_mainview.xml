@@ -41,17 +41,18 @@
                 android:hint="검색어를 입력해주세요"
                 android:padding="3dp"
                 android:paddingLeft="15dp"
+                android:background="@color/whiteText"
                 android:singleLine="true"
-                android:textColor="@color/whiteText"
-                android:textColorHint="@color/whiteText" />
+                android:textColor="@color/darkGrayText"
+                android:textColorHint="@color/colorPrimaryDark" />
 
             <ImageView
                 android:id="@+id/searchbtn"
                 android:onClick="onFloatingButtonClickListener"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:background="@android:color/darker_gray"
                 android:padding="3dp"
+                android:src="@drawable/search"
                 android:scaleType="centerInside" />
         </LinearLayout>
 
@@ -74,55 +75,58 @@
                     android:visibility="visible" />
 
                 <ImageView
+                    style="@style/floatingBtn"
                     android:id="@+id/mapFunctionMyLocation"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_margin="5dp"
-                    android:background="@color/colorPrimaryDark"
                     android:onClick="onFloatingButtonClickListener"
                     android:scaleType="centerInside"
-                    android:text="내 위치"
-                    android:textSize="10sp" />
+                    android:src="@drawable/my_location_1"
+                     />
 
                 <ImageView
+                    style="@style/floatingBtn"
                     android:layout_margin="5dp"
                     android:id="@+id/mapFunctionSetting"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:src="@drawable/setting"
                     android:layout_alignParentRight="true"
-                    android:background="@color/colorPrimaryDark"
                     android:onClick="onFloatingButtonClickListener" />
 
                 <ImageView
+                    style="@style/floatingBtn"
                     android:layout_marginLeft="5dp"
                     android:layout_marginStart="5dp"
                     android:id="@+id/mapFunctionZoomIn"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:src="@drawable/z_in"
                     android:layout_above="@+id/mapFunctionZoomOut"
-                    android:background="@color/colorPrimaryDark"
                     android:onClick="onFloatingButtonClickListener" />
 
                 <ImageView
+                    style="@style/floatingBtn"
                     android:layout_marginLeft="5dp"
                     android:layout_marginStart="5dp"
+                    android:src="@drawable/z_out"
                     android:id="@+id/mapFunctionZoomOut"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_above="@+id/mapFunctionNear"
-                    android:background="@color/colorPrimaryDark"
                     android:onClick="onFloatingButtonClickListener" />
 
                 <Button
+                    style="@style/floatingBtn"
                     android:layout_margin="5dp"
                     android:id="@+id/mapFunctionNear"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_alignParentBottom="true"
-                    android:background="@color/colorPrimaryDark"
                     android:onClick="onFloatingButtonClickListener"
                     android:text="주변 대여점"
-                    android:textSize="8sp" />
+                    android:textSize="10sp" />
 
             </RelativeLayout>
 

@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,7 +29,7 @@ public abstract class SActivity extends AppCompatActivity {
     private View innerLayout = null;
 
     public TextView toolbarText;
-    protected ImageView backBtn;
+    protected Button backBtn;
     protected Typeface fontNanum;
     protected Context mContext;
     protected static final HashMap<String, String> menuHashMap = new HashMap<>();
@@ -36,8 +37,8 @@ public abstract class SActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState, int layout) {
         super.onCreate(savedInstanceState);
         Log.d("test", "abstract class created");
-        if(layout == R.layout.activity_main)
-        setContentView(layout);
+        if (layout == R.layout.activity_main)
+            setContentView(layout);
         else {
             setContentView(R.layout.toolbar_layout);
             if (findViewById(R.id.innerLayout) != null) {
@@ -55,7 +56,6 @@ public abstract class SActivity extends AppCompatActivity {
         }
 
 
-
     }
 
     /**
@@ -68,8 +68,8 @@ public abstract class SActivity extends AppCompatActivity {
         ((TextView) findViewById(R.id.toolbarText)).setText(text);
     }
 
-    protected void visibleLogo(boolean visible){
-        if(toolbar == null) return;
+    protected void visibleLogo(boolean visible) {
+        if (toolbar == null) return;
         ImageView logo = (ImageView) findViewById(R.id.logo);
         Picasso.with(this).load(R.drawable.hanbok_logo).fit().into(logo);
         logo.setVisibility(View.VISIBLE);
@@ -94,7 +94,7 @@ public abstract class SActivity extends AppCompatActivity {
      */
     protected void setToolbar(String text) {
         if (toolbar == null) return;
-        backBtn = (ImageView) findViewById(R.id.backBtn);
+        backBtn = (Button) findViewById(R.id.backBtn);
         backBtn.setVisibility(View.VISIBLE);
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +104,25 @@ public abstract class SActivity extends AppCompatActivity {
         });
         toolbarText = (TextView) findViewById(R.id.toolbarText);
         toolbarText.setText(text);
+    }
+
+    protected void showBackBtn() {
+        if (findViewById(R.id.backBtn) != null) {
+            backBtn = (Button) findViewById(R.id.backBtn);
+            backBtn.setVisibility(View.VISIBLE);
+            backBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onBackPressed();
+                }
+            });
+        } else {
+            backBtn.setVisibility(View.VISIBLE);
+        }
+    }
+
+    protected void hideBackBtn() {
+        if (backBtn != null) backBtn.setVisibility(View.GONE);
     }
 
 }

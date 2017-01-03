@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -16,10 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -82,7 +83,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     /**
      * 맵뷰를 가져오기
      */
-    FrameLayout mainContainer;
+    RelativeLayout container;
 
 
     /**
@@ -106,7 +107,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.activity_main);
         mContext = this;
-        mainContainer = (FrameLayout) findViewById(R.id.mapFrame);
+        container = (RelativeLayout) findViewById(R.id.container);
         searchListView = (ListView) findViewById(R.id.searchListView);
         searchEditText = (EditText) findViewById(R.id.searchet);
         bookMarkListView = (ListView) findViewById(R.id.bookMarkListView);
@@ -147,9 +148,12 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     public void onFloatingButtonClickListener(View v){
         switch (v.getId()){
             case R.id.mapFunctionMyLocation:
-                if(mapView.getCurrentLocationTrackingMode().toString()=="TrackingModeOff"){
+                ImageView imgview = (ImageView)findViewById(R.id.mapFunctionMyLocation);
+                if(mapView.getCurrentLocationTrackingMode().toString().equals("TrackingModeOff")){
+                    imgview.setImageResource(R.drawable.my_location_1);
                     mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
                 }else{
+                    imgview.setImageResource(R.drawable.my_location_2);
                     mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
                     mapView.setShowCurrentLocationMarker(false);
                 }
@@ -320,7 +324,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             Log.d("Test", "parsed item : " + items.toString());
             if(param.equals(KEYWORD)){
                 searchListView.setAdapter(locationAdapter);
-//            showList();
+                showLIst();
 //            searchEditText.setTextColor(StaticData.WHITE_TEXT_COLOR);
 //            searchEditText.setBackgroundColor(StaticData.MAIN_COLOR);
 
@@ -492,7 +496,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             textViewTitle.setText(item.title);
             TextView textViewDesc = (TextView) mCalloutBalloon.findViewById(R.id.desc);
             textViewDesc.setText(item.address);
-            imageViewBadge.setImageDrawable(createDrawableFromUrl(item.imageUrl));
+//            imageViewBadge.setImageDrawable(createDrawableFromUrl(item.imageUrl));
             return mCalloutBalloon;
         }
 
@@ -526,7 +530,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
         for (int i = 0; i < itemList.size(); i++) {
             Item item = itemList.get(i);
-
+//            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.picker_yellow);
+//            bitmap.setHeight(mData.getWidth()/10);
+//            bitmap.setWidth(mData.getWidth()/10);
             MapPOIItem poiItem = new MapPOIItem();
             poiItem.setItemName(item.title);
             poiItem.setTag(i);
@@ -534,9 +540,10 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             poiItem.setMapPoint(mapPoint);
             mapPointBounds.add(mapPoint);
             poiItem.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-            poiItem.setCustomImageResourceId(R.drawable.map_pin_blue);
+            poiItem.setCustomImageResourceId(R.drawable.picker_yellow);
             poiItem.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
-            poiItem.setCustomSelectedImageResourceId(R.drawable.map_pin_red);
+            poiItem.setCustomSelectedImageResourceId(R.drawable.picker_pink);
+           // poiItem.setCustomSelectedImageBitmap(bitmap);
             poiItem.setCustomImageAutoscale(false);
             poiItem.setCustomImageAnchor(0.5f, 1.0f);
 
@@ -551,7 +558,36 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             mapView.selectPOIItem(poiItems[0], false);
         }
     }
+    private void showSearchResult(List<Item> itemList) {
+        MapPointBounds mapPointBounds = new MapPointBounds();
 
+        for (int i = 0; i < itemList.size(); i++) {
+            Item item = itemList.get(i);
+
+            MapPOIItem poiItem = new MapPOIItem();
+            poiItem.setItemName(item.title);
+            poiItem.setTag(i);
+            MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(item.latitude, item.longitude);
+            poiItem.setMapPoint(mapPoint);
+            mapPointBounds.add(mapPoint);
+            poiItem.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+            poiItem.setCustomImageResourceId(R.drawable.map_pin_blue);
+            poiItem.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
+            poiItem.setCustomSelectedImageResourceId(R.drawable.map_pin_yellow);
+            poiItem.setCustomImageAutoscale(false);
+            poiItem.setCustomImageAnchor(0.5f, 1.0f);
+
+            mapView.addPOIItem(poiItem);
+            mTagItemMap.put(poiItem.getTag(), item);
+        }
+
+        mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds));
+
+        MapPOIItem[] poiItems = mapView.getPOIItems();
+        if (poiItems.length > 0) {
+            mapView.selectPOIItem(poiItems[0], false);
+        }
+    }
     private Drawable createDrawableFromUrl(String url) {
         try {
             InputStream is = (InputStream) this.fetch(url);
@@ -576,26 +612,38 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
         final Item item = mTagItemMap.get(mapPOIItem.getTag());
         StringBuilder sb = new StringBuilder();
-        sb.append("id=").append(item.id).append("\n");
-        sb.append("title=").append(item.title).append("\n");
-        sb.append("imageUrl=").append(item.imageUrl).append("\n");
-        sb.append("address=").append(item.address).append("\n");
-        sb.append("newAddress=").append(item.newAddress).append("\n");
-        sb.append("zipcode=").append(item.zipcode).append("\n");
-        sb.append("phone=").append(item.phone).append("\n");
-        sb.append("category=").append(item.category).append("\n");
-        sb.append("longitude=").append(item.longitude).append("\n");
-        sb.append("latitude=").append(item.latitude).append("\n");
-        sb.append("distance=").append(item.distance).append("\n");
-        sb.append("direction=").append(item.direction).append("\n");
+//        sb.append("id=").append(item.id).append("\n");
+//        sb.append("title=").append(item.title).append("\n");
+//        sb.append("imageUrl=").append(item.imageUrl).append("\n");
+//        sb.append("address=").append(item.address).append("\n");
+//        sb.append("newAddress=").append(item.newAddress).append("\n");
+//        sb.append("zipcode=").append(item.zipcode).append("\n");
+//        sb.append("phone=").append(item.phone).append("\n");
+//        sb.append("category=").append(item.category).append("\n");
+//        sb.append("longitude=").append(item.longitude).append("\n");
+//        sb.append("latitude=").append(item.latitude).append("\n");
+//        sb.append("distance=").append(item.distance).append("\n");
+//        sb.append("direction=").append(item.direction).append("\n");
 //        Toast.makeText(this, sb.toString(), Toast.LENGTH_SHORT).show();
+        sb.append(item.title).append("\n");
+        sb.append(item.address).append("\n");
+        sb.append(item.phone).append("\n");
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("DaumMapLibrarySample");
+        alertDialog.setIcon(R.mipmap.ic_launcher);
+        alertDialog.setTitle("한복이랑");
         alertDialog.setMessage( sb.toString());
-        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        alertDialog.setPositiveButton("관광지추천받기", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 searchByLocation(item.longitude, item.latitude);
+            }
+        });
+        alertDialog.setNegativeButton("닫기",null);
+        alertDialog.setNeutralButton("전화 걸기", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent call_intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+item.phone));
+                startActivity(call_intent);
             }
         });
         alertDialog.show();
@@ -612,5 +660,24 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
     @Override
     public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
+    }
+
+    private void showLIst(){
+        searchListView.setVisibility(View.VISIBLE);
+        container.setVisibility(View.GONE);
+        showBackBtn();
+    }
+
+    private void hideList(){
+        searchListView.setVisibility(View.GONE);
+        container.setVisibility(View.VISIBLE);
+        hideBackBtn();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(searchListView.getVisibility() == View.VISIBLE){
+            hideList();
+        } else super.onBackPressed();
     }
 }

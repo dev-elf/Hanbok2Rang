@@ -30,14 +30,18 @@
         android:text="@string/app_name"
         android:textColor="@color/whiteText" />
 
-    <ImageView
+    <Button
         android:id="@+id/backBtn"
         android:layout_width="32dp"
         android:layout_height="32dp"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
         android:scaleType="centerInside"
+        android:text="취소"
+        android:textColor="@color/whiteText"
+        android:textSize="9sp"
         android:visibility="gone" />
 
 </RelativeLayout>

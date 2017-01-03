@@ -13,11 +13,11 @@
 
         <ImageView
             android:id="@+id/badge"
-            android:layout_width="wrap_content"
+            android:layout_width="30dp"
             android:layout_height="match_parent"
             android:layout_marginRight="5dp"
             android:adjustViewBounds="true"
-            android:src="@drawable/ic_launcher" >
+            android:src="@drawable/star_off" >
         </ImageView>
 
         <LinearLayout
@@ -48,6 +48,7 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:singleLine="true"
+                android:maxLength="13"
                 android:text="custom marker desc."
                 android:textColor="#ff7f7f7f"
                 android:textSize="14sp" />
