@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/console"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="@color/darkGrayText"
+            android:clickable="false"
+            android:ems="1"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:singleLine="true"
+            android:textColor="@color/whiteText"
+            android:textSize="10sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="3dp">
+
+            <EditText
+                android:id="@+id/searchet"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:focusableInTouchMode="true"
+                android:gravity="center_vertical"
+                android:hint="검색어를 입력해주세요"
+                android:padding="3dp"
+                android:paddingLeft="15dp"
+                android:singleLine="true"
+                android:textColor="@color/whiteText"
+                android:textColorHint="@color/whiteText" />
+
+            <ImageView
+                android:id="@+id/searchbtn"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@android:color/transparent"
+                android:padding="3dp"
+                android:scaleType="centerInside" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/mapFrame"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <RelativeLayout
+                android:id="@+id/container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <RelativeLayout
+                    android:id="@+id/daumMap"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/darkGrayText"
+                    android:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/mapFunctionMyLocation"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="5dp"
+                    android:background="@color/colorPrimaryDark"
+                    android:onClick="onFloatingButtonClickListener"
+                    android:scaleType="centerInside"
+                    android:text="내 위치"
+                    android:textSize="10sp" />
+
+                <ImageView
+                    android:layout_margin="5dp"
+                    android:id="@+id/mapFunctionSetting"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@color/colorPrimaryDark"
+                    android:onClick="onFloatingButtonClickListener" />
+
+                <ImageView
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
+                    android:id="@+id/mapFunctionZoomIn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_above="@+id/mapFunctionZoomOut"
+                    android:background="@color/colorPrimaryDark"
+                    android:onClick="onFloatingButtonClickListener" />
+
+                <ImageView
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginStart="5dp"
+                    android:id="@+id/mapFunctionZoomOut"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_above="@+id/mapFunctionNear"
+                    android:background="@color/colorPrimaryDark"
+                    android:onClick="onFloatingButtonClickListener" />
+
+                <Button
+                    android:layout_margin="5dp"
+                    android:id="@+id/mapFunctionNear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/colorPrimaryDark"
+                    android:onClick="onFloatingButtonClickListener"
+                    android:text="주변 대여점"
+                    android:textSize="8sp" />
+
+            </RelativeLayout>
+
+
+            <ListView
+                android:id="@+id/searchlist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+
+        </FrameLayout>
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!--<include layout="@layout/fragment_tourselection_bottom" />-->
+    </RelativeLayout>
+</LinearLayout>
