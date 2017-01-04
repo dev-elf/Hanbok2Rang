@@ -72,7 +72,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
      */
     private static final String LOG_TAG = "MainActivity";
     private MapView mapView;
-    private HashMap<Integer, Item> mTagItemMap = new HashMap<Integer, Item>();
+    private MapLayout mapLayout;
+    private HashMap<Integer, Item> mTagItemMap = new HashMap<>();
     private boolean isUsingCustomLocationMarker = false;
 
     private static final String KEYWORD = "keyword";
@@ -84,6 +85,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     private static final String DB_DELETE = "delete";
     public MapPoint t_map, c_map;
     public AlertDialog dialog;
+    private static final String DB_FAIL = "fail";
+    private static final String DB_SUCC = "success";
 
     /**
      * 맵뷰를 가져오기
@@ -120,8 +123,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
         ActivityCompat.requestPermissions(this, new String[]{
         Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        MapLayout mapLayout = new MapLayout(this);
-        mapView = mapLayout.getMapView();
+        if(mapLayout == null) mapLayout = new MapLayout(this);
+        if(mapView == null) mapView = mapLayout.getMapView();
         mapView.setDaumMapApiKey(DAUM_MAPS_ANDROID_APP_API_KEY);
         mapView.setOpenAPIKeyAuthenticationResultListener(this);
         mapView.setMapViewEventListener(this);
@@ -137,17 +140,20 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     public void onMenuClickListener(View v){
         Intent intent = null;
         switch (v.getId()){
-            case R.id.group1:
-                intent = new Intent(MainActivity.this, A1_SearchActivity.class);
-                break;
             case R.id.g1_menu1:
+                intent = new Intent(MainActivity.this, A1_CompanyInfo.class);
                 break;
             case R.id.g1_menu2:
+                Uri uri = Uri.parse("mailto:chriss0313@naver.com");
+                intent = new Intent(Intent.ACTION_SENDTO, uri);
                 break;
-            case R.id.group2:
+            case R.id.g1_menu3:
+                intent = new Intent(MainActivity.this, A2_AppInformation.class);
                 break;
         }
-        if(intent != null) startActivity(intent);
+        if(intent != null) {
+            startActivity(intent);
+        }
     }
 
     public void onFloatingButtonClickListener(View v){
@@ -242,23 +248,37 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                     bookMarks = dbm.printList();
                     return DB_INITIAL;
                 case DB_INSERT:
-                    dbm.insert(params[1], params[2], params[3], params[4]);
-                    break;
+                    if(dbm.insert(params[1], params[2], params[3], params[4])){
+                        bookMarks = dbm.printList();
+                        return DB_INSERT + DB_SUCC;
+                    }
+                    else return DB_INSERT + DB_FAIL;
                 case DB_DELETE:
                     dbm.delete(params[1]);
-                    break;
+                    bookMarks = dbm.printList();
+                    return DB_DELETE;
             }
-            bookMarks = dbm.printList();
-
-            return null;
+            return "";
         }
 
         @Override
         protected void onPostExecute(String s) {
-            //bookMarkAdapter.notifyDataSetChanged();
-            if(s!= null&&s.equals(DB_INITIAL)){
-                bookMarkAdapter = new BookMarkAdapter(mContext, bookMarks);
-                bookMarkListView.setAdapter(bookMarkAdapter);
+            if(bookMarkAdapter != null) bookMarkAdapter.notifyDataSetChanged();
+            bookMarkAdapter = new BookMarkAdapter(mContext, bookMarks);
+            bookMarkListView.setAdapter(bookMarkAdapter);
+            switch (s){
+                case DB_INITIAL:
+                    break;
+                case DB_INSERT+DB_FAIL:
+                    Toast.makeText(MainActivity.this, "이미 추가되어 있습니다.", Toast.LENGTH_SHORT).show();
+                    break;
+                case DB_INSERT+DB_SUCC:
+                    Toast.makeText(MainActivity.this, "즐겨찾기에 추가되었습니다.", Toast.LENGTH_SHORT).show();
+                    break;
+                case DB_DELETE:
+                    break;
+                default:
+                    break;
             }
         }
     }
@@ -275,7 +295,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     /**
      * 데이터 통신 관광 API로부터 관광지 정보를 받아와 리스트로 출력한다.
      */
-    class SearchTask extends AsyncTask<String, Integer, String> implements AdapterView.OnItemClickListener {
+    class SearchTask extends AsyncTask<String, Integer, String> implements AdapterView.OnItemClickListener{
 
         private URL url = null;
         HttpURLConnection connection = null;
@@ -731,5 +751,17 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         if(searchListView.getVisibility() == View.VISIBLE){
             hideList();
         } else super.onBackPressed();
+    }
+
+    @Override
+    public void openDrawer() {
+        super.openDrawer();
+        searchEditText.setClickable(false);
+    }
+
+    @Override
+    public void closeDrawer() {
+        super.closeDrawer();
+        searchEditText.setClickable(true);
     }
 }

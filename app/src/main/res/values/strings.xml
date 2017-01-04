@@ -16,9 +16,9 @@
     <string name="save">저장하기</string>
     <string name="connect">연결하기</string>
 
-    <string name="group1">관광하기</string>
-    <string name="g1_menu1">관광지 검색</string>
-    <string name="g1_menu2">즐겨찾기 수정하기</string>
-    <string name="g1_menu3">주변 가이드</string>
+    <string name="group1">한복이랑 알아보기</string>
+    <string name="g1_menu1">한복이랑이란</string>
+    <string name="g1_menu2">문의하기</string>
+    <string name="g1_menu3">개발정보</string>
     <string name="group2">즐겨찾기</string>
 </resources>

@@ -59,4 +59,12 @@ public class BookMark {
     public void setLat(double lat) {
         this.lat = lat;
     }
+
+    @Override
+    public String toString() {
+        return "BookMark{" +
+                "primeKey=" + primeKey +
+                ", locationName='" + locationName + '\'' +
+                '}';
+    }
 }

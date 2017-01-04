@@ -8,8 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -26,10 +27,10 @@ import mountainq.organization.dongguk.hanbokapp.R;
 public abstract class SActivity extends AppCompatActivity {
 
     protected Toolbar toolbar = null;
-    private View innerLayout = null;
+    private LinearLayout innerLayout = null;
 
     public TextView toolbarText;
-    protected Button backBtn;
+    protected ImageView backBtn;
     protected Typeface fontNanum;
     protected Context mContext;
     protected static final HashMap<String, String> menuHashMap = new HashMap<>();
@@ -42,8 +43,12 @@ public abstract class SActivity extends AppCompatActivity {
         else {
             setContentView(R.layout.toolbar_layout);
             if (findViewById(R.id.innerLayout) != null) {
-                innerLayout = findViewById(R.id.innerLayout);
-                innerLayout = View.inflate(this, layout, null);
+                innerLayout = (LinearLayout) findViewById(R.id.innerLayout);
+                LinearLayout ll = new LinearLayout(this);
+                LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                ll.setLayoutParams(llp);
+                ll = (LinearLayout) View.inflate(this, layout, null);
+                innerLayout.addView(ll);
                 Log.d("ggg", "레이아웃 위치 고정");
             }
         }
@@ -94,7 +99,7 @@ public abstract class SActivity extends AppCompatActivity {
      */
     protected void setToolbar(String text) {
         if (toolbar == null) return;
-        backBtn = (Button) findViewById(R.id.backBtn);
+        backBtn = (ImageView) super.findViewById(R.id.backBtn);
         backBtn.setVisibility(View.VISIBLE);
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,13 +107,13 @@ public abstract class SActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
-        toolbarText = (TextView) findViewById(R.id.toolbarText);
+        toolbarText = (TextView) super.findViewById(R.id.toolbarText);
         toolbarText.setText(text);
     }
 
     protected void showBackBtn() {
-        if (findViewById(R.id.backBtn) != null) {
-            backBtn = (Button) findViewById(R.id.backBtn);
+        if (findViewById(R.id.backBtn) == null) {
+            backBtn = (ImageView) super.findViewById(R.id.backBtn);
             backBtn.setVisibility(View.VISIBLE);
             backBtn.setOnClickListener(new View.OnClickListener() {
                 @Override

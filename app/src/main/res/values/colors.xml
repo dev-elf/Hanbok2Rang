@@ -11,6 +11,7 @@
     <color name="groupBg">#df6fa0</color>
     <color name="userBg">#d13076</color>
     <color name="downSheetBg">#ffeaeaea</color>
+    <color name="menuSheetBg">#f2c5d8</color>
 
     <!-- colorText -->
     <color name="whiteText">#ffffffff</color>
@@ -21,4 +22,6 @@
     <color name="startPoint">#fff96a53</color>
     <color name="routePoint">#ffd8bc35</color>
     <color name="endPoint">#ff4275e5</color>
+    <color name="floatingBtn">#ffe3e3e3</color>
+
 </resources>

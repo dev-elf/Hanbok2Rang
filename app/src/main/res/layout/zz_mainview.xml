@@ -38,13 +38,13 @@
                 android:layout_weight="1"
                 android:focusableInTouchMode="true"
                 android:gravity="center_vertical"
-                android:hint="검색어를 입력해주세요"
+                android:hint="관광지를 검색해보세요"
                 android:padding="3dp"
                 android:paddingLeft="15dp"
                 android:background="@color/whiteText"
                 android:singleLine="true"
                 android:textColor="@color/darkGrayText"
-                android:textColorHint="@color/colorPrimaryDark" />
+                android:textColorHint="@color/colorAccent" />
 
             <ImageView
                 android:id="@+id/searchbtn"

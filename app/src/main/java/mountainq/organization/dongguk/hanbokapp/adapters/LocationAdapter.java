@@ -87,9 +87,14 @@ public class LocationAdapter extends BaseAdapter /*implements Filterable*/ {
         if (item.getFirstImgUrl() != null && !item.getFirstImgUrl().equals(""))
             Picasso.with(context)
                     .load(item.getFirstImgUrl())
-                    .error(R.mipmap.ic_launcher)
+                    .placeholder(R.drawable.picture_default)
+                    .error(R.drawable.picture_default)
                     .fit()
                     .into(holder.firstImgView);
+        else Picasso.with(context)
+                .load(R.drawable.picture_default)
+                .fit()
+                .into(holder.firstImgView);
 
         return v;
     }
