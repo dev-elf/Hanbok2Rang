@@ -2,7 +2,6 @@ package mountainq.organization.dongguk.hanbokapp.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -61,7 +60,7 @@ public class APIAdapter extends BaseAdapter{
         View v = convertView;
        ViewHolder holder = new ViewHolder();
         if(convertView == null){
-            v = View.inflate(context, R.layout.xx_bookmark_item, null);
+            v = View.inflate(context, R.layout.xx_api_item, null);
             holder.itemBg = (LinearLayout) v.findViewById(R.id.itemBg);
             holder.index = (TextView) v.findViewById(R.id.idx);
             holder.text = (TextView) v.findViewById(R.id.nameText);
@@ -73,7 +72,7 @@ public class APIAdapter extends BaseAdapter{
         holder.itemBg.setLayoutParams(llp);
         holder.itemBg.setPadding(10, 20, 10, 20);
         holder.itemBg.setBackgroundColor(Color.TRANSPARENT);
-        holder.itemBg.setGravity(Gravity.CENTER_VERTICAL);
+//        holder.itemBg.setGravity(Gravity.CENTER_VERTICAL);
         holder.index.setText(String.valueOf(position+1));
         String item = items.get(position);
         holder.text.setText(item);

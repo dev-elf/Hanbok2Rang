@@ -7,16 +7,16 @@
     android:padding="30dp">
 
     <TextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="15dp"
-        android:text="한복이랑 입니다."
         android:textSize="20sp" />
 
     <TextView
+        android:id="@+id/detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="한복입고 어디갈까?\n통합적인 한복대여점 비교 서비스와 나만의 어색적인 전통문화 코스 구성까지!!\n\n한복이랑에서 색다른 경험을 느껴보세요!"
         android:textSize="15sp" />
 
 </LinearLayout>

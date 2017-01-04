@@ -52,7 +52,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:padding="3dp"
-                android:src="@drawable/search"
+                android:src="@drawable/zz_search_btn"
                 android:scaleType="centerInside" />
         </LinearLayout>
 

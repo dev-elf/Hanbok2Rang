@@ -119,6 +119,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         searchListView = (ListView) findViewById(R.id.searchListView);
         searchEditText = (EditText) findViewById(R.id.searchet);
         bookMarkListView = (ListView) findViewById(R.id.bookMarkListView);
+        bookMarkListView.setOnItemClickListener(bookMarkClickListener);
+        bookMarkListView.setOnItemLongClickListener(bookMarkLongClickListener);
         getBookMarkList();
 
         ActivityCompat.requestPermissions(this, new String[]{
@@ -136,6 +138,38 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         ViewGroup mapViewContainer = (ViewGroup) findViewById(R.id.daumMap);
         mapViewContainer.addView(mapLayout);
     }
+
+    private AdapterView.OnItemClickListener bookMarkClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+        }
+    };
+
+    private AdapterView.OnItemLongClickListener bookMarkLongClickListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            final BookMark item = bookMarks.get(position);
+            AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                    .setMessage(item.getLocationName() + "를 즐겨찾기에서 지우시겠습니까?")
+                    .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteBookMark(item);
+                            dialog.dismiss();
+                        }
+                    })
+                    .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create();
+            dialog.show();
+            return false;
+        }
+    };
 
     public void onMenuClickListener(View v){
         Intent intent = null;
@@ -276,6 +310,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                     Toast.makeText(MainActivity.this, "즐겨찾기에 추가되었습니다.", Toast.LENGTH_SHORT).show();
                     break;
                 case DB_DELETE:
+                    Toast.makeText(MainActivity.this, "즐겨찾기에서 해제되었습니다.", Toast.LENGTH_SHORT).show();
                     break;
                 default:
                     break;
@@ -356,9 +391,6 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             if(param.equals(KEYWORD)){
                 searchListView.setAdapter(locationAdapter);
                 showLIst();
-//            searchEditText.setTextColor(StaticData.WHITE_TEXT_COLOR);
-//            searchEditText.setBackgroundColor(StaticData.MAIN_COLOR);
-
                 View v = getCurrentFocus();
                 if (v != null) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -446,6 +478,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds, padding));
             dialog.dismiss();
         }
+
 
     }
     /**

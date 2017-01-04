@@ -38,8 +38,10 @@ public abstract class SActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState, int layout) {
         super.onCreate(savedInstanceState);
         Log.d("test", "abstract class created");
-        if (layout == R.layout.activity_main)
+        if (layout == R.layout.activity_main){
             setContentView(layout);
+            backBtn = (ImageView) findViewById(R.id.backBtn);
+        }
         else {
             setContentView(R.layout.toolbar_layout);
             if (findViewById(R.id.innerLayout) != null) {
@@ -53,11 +55,11 @@ public abstract class SActivity extends AppCompatActivity {
             }
         }
 
-        if (findViewById(R.id.toolbar) != null) {
-            toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (super.findViewById(R.id.toolbar) != null) {
+            toolbar = (Toolbar) super.findViewById(R.id.toolbar);
             toolbar.setTitle("");
             setSupportActionBar(toolbar);
-            Log.d("ggg", "툴바 위치 고정");
+            Log.d("test", "툴바 위치 고정");
         }
 
 
@@ -69,7 +71,9 @@ public abstract class SActivity extends AppCompatActivity {
      * @param text 바꿀 내용
      */
     protected void changeToolbarText(String text) {
+        Log.d("test", "toolbar is ");
         if (toolbar == null) return;
+        Log.d("test", "not null");
         ((TextView) findViewById(R.id.toolbarText)).setText(text);
     }
 
@@ -99,20 +103,12 @@ public abstract class SActivity extends AppCompatActivity {
      */
     protected void setToolbar(String text) {
         if (toolbar == null) return;
-        backBtn = (ImageView) super.findViewById(R.id.backBtn);
-        backBtn.setVisibility(View.VISIBLE);
-        backBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onBackPressed();
-            }
-        });
-        toolbarText = (TextView) super.findViewById(R.id.toolbarText);
-        toolbarText.setText(text);
+        showBackBtn();
+        if(toolbarText != null) toolbarText.setText(text);
     }
 
     protected void showBackBtn() {
-        if (findViewById(R.id.backBtn) == null) {
+        if (super.findViewById(R.id.backBtn) == null) {
             backBtn = (ImageView) super.findViewById(R.id.backBtn);
             backBtn.setVisibility(View.VISIBLE);
             backBtn.setOnClickListener(new View.OnClickListener() {

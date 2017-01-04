@@ -24,6 +24,7 @@ public class A2_AppInformation extends SActivity {
         super.onCreate(savedInstanceState, R.layout.activity_app_info);
         apiListView = (ListView) findViewById(R.id.apiListView);
         setAPIInfo();
+        changeToolbarText("개발정보");
         showBackBtn();
     }
 
