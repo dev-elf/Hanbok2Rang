@@ -198,6 +198,11 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 mapView.addCircle(circle1);
                 break;
             case  R.id.mapFunctionSetting:
+                if(mapView.getMapType().toString().equals("Standard")){
+                    mapView.setMapType(MapView.MapType.Hybrid);
+                }else{
+                    mapView.setMapType(MapView.MapType.Standard);
+                }
                 break;
             case R.id.mapFunctionZoomIn:
                 mapView.zoomIn(true);
