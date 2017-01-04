@@ -18,11 +18,11 @@ import static mountainq.organization.dongguk.hanbokapp.datas.DataBaseManager.Dat
 public class DataBaseManager extends SQLiteOpenHelper{
 
     public static final String DB_NAME = "Hanbok.db";
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 5;
 
     public  static class DataEntry implements BaseColumns {
         public static final String TABLE_NAME = "bookmark";
-        public static final String _ID = "pk";
+        public static final String _ID = "_id";
         public static final String COLUMN_PRIMEKEY = "primeKey";
         public static final String COLUMN_LOCATION_NAME = "locationName";
         public static final String COLUMN_LON = "longitude";
@@ -36,9 +36,9 @@ public class DataBaseManager extends SQLiteOpenHelper{
             "CREATE TABLE " + TABLE_NAME + " (" +
                     DataEntry._ID + INTEGER_TYPE + " PRIMARY KEY AUTOINCREMENT, " +
                     DataEntry.COLUMN_PRIMEKEY + INTEGER_TYPE + COMMA_SEP +
-                    DataEntry.COLUMN_LOCATION_NAME + TEXT_TYPE +
-                    DataEntry.COLUMN_LON + TEXT_TYPE +
-                    DataEntry.COLUMN_LAT + TEXT_TYPE + " )";
+                    DataEntry.COLUMN_LOCATION_NAME + TEXT_TYPE + COMMA_SEP+
+                    DataEntry.COLUMN_LAT + TEXT_TYPE + COMMA_SEP+
+                    DataEntry.COLUMN_LON + TEXT_TYPE+" )";
     private static final String SQL_DELETE_BOOKMARK =
             "DROP TABLE IF EXISTS " + DataEntry.TABLE_NAME;
 
@@ -63,13 +63,14 @@ public class DataBaseManager extends SQLiteOpenHelper{
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void insert(String primeKey, String locationName, String lon, String lat){
+    public void insert(String primeKey, String locationName, String lat, String lon){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DataEntry.COLUMN_PRIMEKEY, primeKey);
         values.put(DataEntry.COLUMN_LOCATION_NAME, locationName);
-        values.put(DataEntry.COLUMN_LON, lon);
         values.put(DataEntry.COLUMN_LAT, lat);
+        values.put(DataEntry.COLUMN_LON, lon);
+
 
         long newRowId = db.insert(DataEntry.TABLE_NAME, null, values);
 //        db.execSQL("INSERT INTO "+TABLE_NAME+" values(null, '"+primeKey+"', '"+locationName+"');");
@@ -97,15 +98,16 @@ public class DataBaseManager extends SQLiteOpenHelper{
         }
 
         String[] projection = {
-                DataEntry._ID,
                 DataEntry.COLUMN_PRIMEKEY,
-                DataEntry.COLUMN_LOCATION_NAME
+                DataEntry.COLUMN_LOCATION_NAME,
+                DataEntry.COLUMN_LAT,
+                DataEntry.COLUMN_LON
         };
 
         Cursor c = db.query(DataEntry.TABLE_NAME, projection, null, null, null, null, null);
         c.moveToFirst();
         while(c.moveToNext()){
-            BookMark item = new BookMark(c.getInt(1), c.getString(2), c.getDouble(3), c.getDouble(4));
+            BookMark item = new BookMark(c.getInt(0), c.getString(1), c.getDouble(2), c.getDouble(3));
             items.add(item);
         }
         c.close();

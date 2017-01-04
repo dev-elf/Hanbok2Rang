@@ -239,13 +239,14 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                     break;
             }
             bookMarks = dbm.printList();
-            bookMarkAdapter.notifyDataSetChanged();
+
             return null;
         }
 
         @Override
         protected void onPostExecute(String s) {
-            if(s.equals(DB_INITIAL)){
+            //bookMarkAdapter.notifyDataSetChanged();
+            if(s!= null&&s.equals(DB_INITIAL)){
                 bookMarkAdapter = new BookMarkAdapter(mContext, bookMarks);
                 bookMarkListView.setAdapter(bookMarkAdapter);
             }
@@ -608,6 +609,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     }
 
     //말풍선 커스텀
+
     @Override
     public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
         final Item item = mTagItemMap.get(mapPOIItem.getTag());
@@ -638,7 +640,13 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 searchByLocation(item.longitude, item.latitude);
             }
         });
-        alertDialog.setNegativeButton("닫기",null);
+        alertDialog.setNegativeButton("즐겨찾기", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                BookMark bookMark = new BookMark(item.id,item.title,Double.toString(item.longitude),Double.toString(item.latitude));
+                insertBookMark(bookMark);
+            }
+        });
         alertDialog.setNeutralButton("전화 걸기", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

@@ -8,21 +8,24 @@ public class BookMark {
 
     private int primeKey;
     private String locationName;
-    private double lon;
     private double lat;
+    private double lon;
 
-    public BookMark(int primeKey, String locationName, double lon, double lat) {
+
+    public BookMark(int primeKey, String locationName, double lat, double lon) {
         this.primeKey = primeKey;
         this.locationName = locationName;
-        this.lon = lon;
         this.lat = lat;
+        this.lon = lon;
+
     }
 
-    public BookMark(String primeKey, String locationName, String lon, String lat) {
+    public BookMark(String primeKey, String locationName, String lat, String lon) {
         this.primeKey = Integer.parseInt(primeKey);
         this.locationName = locationName;
-        this.lon = Double.parseDouble(lon);
         this.lat = Double.parseDouble(lat);
+        this.lon = Double.parseDouble(lon);
+
     }
 
     public int getPrimeKey() {
