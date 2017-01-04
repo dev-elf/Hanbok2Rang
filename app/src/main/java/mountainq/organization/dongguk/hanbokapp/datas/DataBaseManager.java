@@ -98,6 +98,7 @@ public class DataBaseManager extends SQLiteOpenHelper{
         }
 
         String[] projection = {
+                DataEntry._ID,
                 DataEntry.COLUMN_PRIMEKEY,
                 DataEntry.COLUMN_LOCATION_NAME,
                 DataEntry.COLUMN_LAT,
@@ -107,7 +108,7 @@ public class DataBaseManager extends SQLiteOpenHelper{
         Cursor c = db.query(DataEntry.TABLE_NAME, projection, null, null, null, null, null);
         c.moveToFirst();
         while(c.moveToNext()){
-            BookMark item = new BookMark(c.getInt(0), c.getString(1), c.getDouble(2), c.getDouble(3));
+            BookMark item = new BookMark(c.getInt(1), c.getString(2), c.getDouble(3), c.getDouble(4));
             items.add(item);
         }
         c.close();

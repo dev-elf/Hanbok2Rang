@@ -38,6 +38,9 @@ public class TourAPIHandler extends DefaultHandler {
             case "tel":
                 item.setPhoneNumber(data);
                 break;
+            case "addr1":
+                item.setAddress(data);
+                break;
         }
         tagName = "";
     }

@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,6 +32,7 @@ import net.daum.mf.map.api.MapLayout;
 import net.daum.mf.map.api.MapPOIItem;
 import net.daum.mf.map.api.MapPoint;
 import net.daum.mf.map.api.MapPointBounds;
+import net.daum.mf.map.api.MapPolyline;
 import net.daum.mf.map.api.MapReverseGeoCoder;
 import net.daum.mf.map.api.MapView;
 
@@ -42,6 +44,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import mountainq.organization.dongguk.hanbokapp.activities.NavigationDrawerActivity;
@@ -79,6 +82,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     private static final String DB_INITIAL = "initial";
     private static final String DB_INSERT = "insert";
     private static final String DB_DELETE = "delete";
+    public MapPoint t_map, c_map;
+    public AlertDialog dialog;
 
     /**
      * 맵뷰를 가져오기
@@ -166,7 +171,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 double longitude = geoCoordinate.longitude; // 경도
                 int radius = 250; // 중심 좌표부터의 반경거리. 특정 지역을 중심으로 검색하려고 할 경우 사용. meter 단위 (0 ~ 10000)
                 int page = 1; // 페이지 번호 (1 ~ 3). 한페이지에 15개
-                Toast.makeText(getApplicationContext(), String.format("위치는 (%f,%f)", latitude, longitude), Toast.LENGTH_SHORT).show();
+               //Toast.makeText(getApplicationContext(), String.format("위치는 (%f,%f)", latitude, longitude), Toast.LENGTH_SHORT).show();
                 String apikey = DAUM_MAPS_ANDROID_APP_API_KEY;
 
                 Searcher searcher = new Searcher(); // net.daum.android.map.openapi.search.Searcher
@@ -265,7 +270,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     /**
      * 데이터 통신 관광 API로부터 관광지 정보를 받아와 리스트로 출력한다.
      */
-    class SearchTask extends AsyncTask<String, Integer, String> {
+    class SearchTask extends AsyncTask<String, Integer, String> implements AdapterView.OnItemClickListener {
 
         private URL url = null;
         HttpURLConnection connection = null;
@@ -336,7 +341,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 }
             } else {
                 //알림창에서 확인후 추천
-                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                dialog = new AlertDialog.Builder(MainActivity.this)
                         .setMessage("대여점 근처의 관광지 추천 받으시겠습니까?")
                         .setPositiveButton("예", new DialogInterface.OnClickListener() {
                             @Override
@@ -360,8 +365,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(mData.getWidth()*4/5, mData.getWidth()*4/5);
             newListView.setLayoutParams(llp);
             newListView.setAdapter(locationAdapter);
-
-            AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+            //custom
+            newListView.setOnItemClickListener(this);
+            dialog = new AlertDialog.Builder(MainActivity.this)
                     .setTitle("대여점 주변 정보")
                     .setView(tempView)
                     .setNegativeButton("닫기", new DialogInterface.OnClickListener() {
@@ -371,6 +377,49 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                         }
                     }).create();
             dialog.show();
+        }
+        @Override
+        //아이템 클릭
+        public void onItemClick(AdapterView<?> parent, View v, int position, long id){
+            LocationItem b=(LocationItem)parent.getAdapter().getItem(position);
+            double lat= b.getMapLat();
+            double lon=b.getMapLon();
+            Item search_item=new Item();
+            search_item.title=b.getLocationName();
+            search_item.address=b.getAddress();
+            search_item.phone=b.getPhoneNumber();
+            search_item.imageUrl=b.getFirstImgUrl();
+            if(search_item.category==null) {
+                search_item.category = "관광";
+            }
+            MapPOIItem marker = new MapPOIItem();
+            marker.setItemName("Default Marker");
+            double rand =Math.random();
+            int intval = (int)(rand*-100)+1;
+            marker.setTag(intval);
+            MapPoint this_point = MapPoint.mapPointWithGeoCoord(lat, lon);
+            marker.setMapPoint(this_point);
+            marker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 기본으로 제공하는 BluePin 마커 모양.
+            marker.setCustomImageResourceId(R.drawable.picker_blue); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+            marker.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
+            marker.setCustomSelectedImageResourceId(R.drawable.picker_green);
+            marker.setCustomImageAutoscale(false);
+            mapView.addPOIItem(marker);
+            mTagItemMap.put(marker.getTag(), search_item);
+            mapView.moveCamera(CameraUpdateFactory.newMapPoint(this_point));
+
+//            Toast.makeText(getApplicationContext(), marker.getTag()+"이동하였습니다.", Toast.LENGTH_SHORT).show();
+
+            MapPolyline polyline = new MapPolyline();
+            polyline.setTag(1000);
+            polyline.setLineColor(Color.argb(128, 255, 51, 0)); // Polyline 컬러 지정.
+            polyline.addPoint(this_point);
+            polyline.addPoint(c_map);
+            mapView.addPolyline(polyline);
+            MapPointBounds mapPointBounds = new MapPointBounds(polyline.getMapPoints());
+            int padding = 100; // px
+            mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds, padding));
+            dialog.dismiss();
         }
 
     }
@@ -422,22 +471,22 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
         MapPoint.GeoCoordinate mapPointGeo = mapPoint.getMapPointGeoCoord();
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("DaumMapLibrarySample");
-        alertDialog.setMessage(String.format("Double-Tap on (%f,%f)", mapPointGeo.latitude, mapPointGeo.longitude));
-        alertDialog.setPositiveButton("OK", null);
-        alertDialog.show();
+//        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+//        alertDialog.setTitle("DaumMapLibrarySample");
+//        alertDialog.setMessage(String.format("Double-Tap on (%f,%f)", mapPointGeo.latitude, mapPointGeo.longitude));
+//        alertDialog.setPositiveButton("OK", null);
+//        alertDialog.show();
     }
     @Override
     public void onMapViewLongPressed(MapView mapView, MapPoint mapPoint) {
 
         MapPoint.GeoCoordinate mapPointGeo = mapPoint.getMapPointGeoCoord();
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-        alertDialog.setTitle("DaumMapLibrarySample");
-        alertDialog.setMessage(String.format("Long-Press on (%f,%f)", mapPointGeo.latitude, mapPointGeo.longitude));
-        alertDialog.setPositiveButton("OK", null);
-        alertDialog.show();
+//        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+//        alertDialog.setTitle("DaumMapLibrarySample");
+//        alertDialog.setMessage(String.format("Long-Press on (%f,%f)", mapPointGeo.latitude, mapPointGeo.longitude));
+//        alertDialog.setPositiveButton("OK", null);
+//        alertDialog.show();
     }
     @Override
     public void onMapViewSingleTapped(MapView mapView, MapPoint mapPoint) {
@@ -486,18 +535,36 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         public CustomCalloutBalloonAdapter() {
             mCalloutBalloon = getLayoutInflater().inflate(R.layout.custom_callout_balloon, null);
         }
-
+        //말풍선
         @Override
         public View getCalloutBalloon(MapPOIItem poiItem) {
             if (poiItem == null) return null;
             Item item = mTagItemMap.get(poiItem.getTag());
             if (item == null) return null;
+            DataBaseManager dbm = new DataBaseManager(mContext);
+            bookMarks = dbm.printList();
+            Iterator<BookMark> iterator =bookMarks.iterator();
+            String name= null;
             ImageView imageViewBadge = (ImageView) mCalloutBalloon.findViewById(R.id.badge);
+            while (iterator.hasNext()){
+                BookMark b = (BookMark)iterator.next();
+                name=b.getLocationName();
+                if(name.equals(item.title)){
+                    imageViewBadge.setImageResource(R.drawable.star_on);
+                }else{
+                    imageViewBadge.setImageResource(R.drawable.star_off);
+                }
+            }
+
             TextView textViewTitle = (TextView) mCalloutBalloon.findViewById(R.id.title);
             textViewTitle.setText(item.title);
             TextView textViewDesc = (TextView) mCalloutBalloon.findViewById(R.id.desc);
             textViewDesc.setText(item.address);
-//            imageViewBadge.setImageDrawable(createDrawableFromUrl(item.imageUrl));
+            if(item.category.equals("관광")){
+                imageViewBadge.setImageDrawable(createDrawableFromUrl(item.imageUrl));
+            }
+            t_map=poiItem.getMapPoint();
+
             return mCalloutBalloon;
         }
 
@@ -559,36 +626,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             mapView.selectPOIItem(poiItems[0], false);
         }
     }
-    private void showSearchResult(List<Item> itemList) {
-        MapPointBounds mapPointBounds = new MapPointBounds();
 
-        for (int i = 0; i < itemList.size(); i++) {
-            Item item = itemList.get(i);
-
-            MapPOIItem poiItem = new MapPOIItem();
-            poiItem.setItemName(item.title);
-            poiItem.setTag(i);
-            MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(item.latitude, item.longitude);
-            poiItem.setMapPoint(mapPoint);
-            mapPointBounds.add(mapPoint);
-            poiItem.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-            poiItem.setCustomImageResourceId(R.drawable.map_pin_blue);
-            poiItem.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
-            poiItem.setCustomSelectedImageResourceId(R.drawable.map_pin_yellow);
-            poiItem.setCustomImageAutoscale(false);
-            poiItem.setCustomImageAnchor(0.5f, 1.0f);
-
-            mapView.addPOIItem(poiItem);
-            mTagItemMap.put(poiItem.getTag(), item);
-        }
-
-        mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds));
-
-        MapPOIItem[] poiItems = mapView.getPOIItems();
-        if (poiItems.length > 0) {
-            mapView.selectPOIItem(poiItems[0], false);
-        }
-    }
     private Drawable createDrawableFromUrl(String url) {
         try {
             InputStream is = (InputStream) this.fetch(url);
@@ -613,20 +651,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     @Override
     public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
         final Item item = mTagItemMap.get(mapPOIItem.getTag());
+        //Toast.makeText(this, "api는"+item.category+"tag는"+mapPOIItem.getTag(), Toast.LENGTH_SHORT).show();
         StringBuilder sb = new StringBuilder();
-//        sb.append("id=").append(item.id).append("\n");
-//        sb.append("title=").append(item.title).append("\n");
-//        sb.append("imageUrl=").append(item.imageUrl).append("\n");
-//        sb.append("address=").append(item.address).append("\n");
-//        sb.append("newAddress=").append(item.newAddress).append("\n");
-//        sb.append("zipcode=").append(item.zipcode).append("\n");
-//        sb.append("phone=").append(item.phone).append("\n");
-//        sb.append("category=").append(item.category).append("\n");
-//        sb.append("longitude=").append(item.longitude).append("\n");
-//        sb.append("latitude=").append(item.latitude).append("\n");
-//        sb.append("distance=").append(item.distance).append("\n");
-//        sb.append("direction=").append(item.direction).append("\n");
-//        Toast.makeText(this, sb.toString(), Toast.LENGTH_SHORT).show();
         sb.append(item.title).append("\n");
         sb.append(item.address).append("\n");
         sb.append(item.phone).append("\n");
@@ -634,26 +660,39 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         alertDialog.setIcon(R.mipmap.ic_launcher);
         alertDialog.setTitle("한복이랑");
         alertDialog.setMessage( sb.toString());
-        alertDialog.setPositiveButton("관광지추천받기", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                searchByLocation(item.longitude, item.latitude);
-            }
-        });
-        alertDialog.setNegativeButton("즐겨찾기", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                BookMark bookMark = new BookMark(item.id,item.title,Double.toString(item.longitude),Double.toString(item.latitude));
-                insertBookMark(bookMark);
-            }
-        });
-        alertDialog.setNeutralButton("전화 걸기", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent call_intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"+item.phone));
-                startActivity(call_intent);
-            }
-        });
+        if(item.category.equals("관광")){
+            alertDialog.setPositiveButton("전화걸기", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent call_intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + item.phone));
+                    startActivity(call_intent);
+                }
+            });
+            alertDialog.setNegativeButton("닫기", null);
+        }
+        else {
+            alertDialog.setPositiveButton("관광지추천받기", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    c_map=t_map;
+                    searchByLocation(item.longitude, item.latitude);
+                }
+            });
+            alertDialog.setNegativeButton("즐겨찾기", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    BookMark bookMark = new BookMark(item.id, item.title, Double.toString(item.longitude), Double.toString(item.latitude));
+                    insertBookMark(bookMark);
+                }
+            });
+            alertDialog.setNeutralButton("전화 걸기", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent call_intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + item.phone));
+                    startActivity(call_intent);
+                }
+            });
+        }
         alertDialog.show();
     }
 
