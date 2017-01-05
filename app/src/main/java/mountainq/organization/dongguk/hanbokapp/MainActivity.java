@@ -101,7 +101,6 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     BookMarkAdapter bookMarkAdapter;
     private ArrayList<BookMark> bookMarks = new ArrayList<>();
 
-
     /**
      * 검색 리스트
      */
@@ -109,7 +108,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     ListView searchListView;
     EditText searchEditText;
     ImageView searchButton;
-    private ArrayList<LocationItem> items = new ArrayList<>();
+    private ArrayList<LocationItem> locationItems = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -369,7 +368,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 switch (code) {
                     case 200:
                         TourAPIParser parser = new TourAPIParser();
-                        items = parser.parse(connection.getInputStream());
+                        locationItems = parser.parse(connection.getInputStream());
                         break;
                     default:
                         break;
@@ -386,8 +385,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
         @Override
         protected void onPostExecute(String param) {
-            locationAdapter = new LocationAdapter(items, mContext);
-            Log.d("Test", "parsed item : " + items.toString());
+            locationAdapter = new LocationAdapter(locationItems, mContext);
+            Log.d("Test", "parsed item : " + locationItems.toString());
             if(param.equals(KEYWORD)){
                 searchListView.setAdapter(locationAdapter);
                 showLIst();
@@ -435,10 +434,12 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                     }).create();
             dialog.show();
         }
+
         @Override
         //아이템 클릭
         public void onItemClick(AdapterView<?> parent, View v, int position, long id){
-            LocationItem b=(LocationItem)parent.getAdapter().getItem(position);
+            LocationItem b = locationItems.get(position);
+
             double lat= b.getMapLat();
             double lon=b.getMapLon();
             Item search_item=new Item();
