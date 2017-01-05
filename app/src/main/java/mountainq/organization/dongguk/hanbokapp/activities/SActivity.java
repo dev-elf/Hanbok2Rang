@@ -49,11 +49,11 @@ public abstract class SActivity extends AppCompatActivity {
             if (findViewById(R.id.innerLayout) != null) {
                 innerLayout = (LinearLayout) findViewById(R.id.innerLayout);
                 LinearLayout ll = new LinearLayout(this);
-                LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1);
                 ll.setLayoutParams(llp);
+                ll.setGravity(Gravity.CENTER);
                 ll = (LinearLayout) View.inflate(this, layout, null);
                 innerLayout.addView(ll);
-                ll.setGravity(Gravity.CENTER);
                 Log.d("test", "레이아웃 위치 고정");
             }
         }
@@ -95,6 +95,11 @@ public abstract class SActivity extends AppCompatActivity {
         if(visible) logoImg.setVisibility(View.VISIBLE);
         else logoImg.setVisibility(View.GONE);
     }
+
+    protected LinearLayout getInnerLayout(){
+        return (LinearLayout) innerLayout.getChildAt(0);
+    }
+
 
 
     /**

@@ -42,6 +42,11 @@ public class AA_StaticDatas {
 
 
     /**
+     * 색상 표
+     */
+    public static final int BACKSHEET_COLOR = 0xffedacc8;
+
+    /**
      * 화면 크기 저장 메소드 한번만 쓰도록하자
      * @param context
      */

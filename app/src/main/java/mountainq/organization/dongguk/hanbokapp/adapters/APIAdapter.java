@@ -2,6 +2,7 @@ package mountainq.organization.dongguk.hanbokapp.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -72,11 +73,11 @@ public class APIAdapter extends BaseAdapter{
         holder.itemBg.setLayoutParams(llp);
         holder.itemBg.setPadding(10, 20, 10, 20);
         holder.itemBg.setBackgroundColor(Color.TRANSPARENT);
-//        holder.itemBg.setGravity(Gravity.CENTER_VERTICAL);
+        holder.itemBg.setGravity(Gravity.CENTER);
         holder.index.setText(String.valueOf(position+1));
         String item = items.get(position);
         holder.text.setText(item);
-        holder.text.setTextSize(17);
+        holder.text.setTextSize(15);
         return v;
     }
 }

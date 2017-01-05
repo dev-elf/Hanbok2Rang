@@ -56,17 +56,18 @@ public abstract class NavigationDrawerActivity extends SActivity implements Navi
                 public void onDrawerOpened(View view) {
                     super.onDrawerOpened(view);
                     isDrawerOpen = true;
+                    searchEditTextActivated(isDrawerOpen);
                 }
 
                 @Override
                 public void onDrawerClosed(View view) {
                     super.onDrawerClosed(view);
                     isDrawerOpen = false;
+                    searchEditTextActivated(isDrawerOpen);
                 }
             };
             mDrawerLayout.addDrawerListener(mDrawerToggle);
         } else Log.e("test", "툴바없음");
-
     }
 
     public void setToolbarText(String text){
@@ -110,6 +111,9 @@ public abstract class NavigationDrawerActivity extends SActivity implements Navi
     }
 
 
+    protected void searchEditTextActivated(Boolean activated){
+
+    }
 
 
 

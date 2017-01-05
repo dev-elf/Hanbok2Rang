@@ -1,30 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
     android:padding="30dp">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:gravity="center"
-        android:layout_weight="1"
+        android:id="@+id/intro"
         android:layout_width="match_parent"
-        android:layout_height="0dp">
-        <TextView
-            android:text="동국대학교 스타트업 한복이랑 개발팀 크리에이티브살몬 개발!"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="동국대학교 스타트업 한복이랑 개발팀"
+            android:textSize="15sp" />
     </LinearLayout>
 
     <TextView
-        android:text="API 사용현황"
-        android:textSize="14sp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="API 사용현황"
+        android:textStyle="bold"
+        android:textSize="18sp" />
+
     <ListView
         android:id="@+id/apiListView"
-        android:layout_weight="3"
         android:layout_width="match_parent"
-        android:layout_height="0dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="3" />
+
 </LinearLayout>

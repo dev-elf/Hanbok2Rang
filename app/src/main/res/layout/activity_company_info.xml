@@ -8,14 +8,23 @@
 
     <TextView
         android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:textSize="23sp" />
+
+    <ImageView
+        android:id="@+id/logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:textSize="20sp" />
+        android:background="@drawable/zz_logo_bg"
+        android:padding="15dp"
+        android:scaleType="centerInside" />
 
     <TextView
         android:id="@+id/detail"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="15sp" />
 

@@ -109,6 +109,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     EditText searchEditText;
     ImageView searchButton;
     private ArrayList<LocationItem> locationItems = new ArrayList<>();
+    LinearLayout searchLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +118,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         container = (RelativeLayout) findViewById(R.id.container);
         searchListView = (ListView) findViewById(R.id.searchListView);
         searchEditText = (EditText) findViewById(R.id.searchet);
+        searchLayout = (LinearLayout) findViewById(R.id.searchLL);
+
         bookMarkListView = (ListView) findViewById(R.id.bookMarkListView);
         bookMarkListView.setOnItemClickListener(bookMarkClickListener);
         bookMarkListView.setOnItemLongClickListener(bookMarkLongClickListener);
@@ -872,15 +875,32 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         } else super.onBackPressed();
     }
 
+
+
+    /**
+     * 드로워가 열려있으면 true, 닫혀있으면 false
+     * @param activated
+     */
+    @Override
+    protected void searchEditTextActivated(Boolean activated) {
+        super.searchEditTextActivated(activated);
+        if(activated) {
+            searchLayout.setVisibility(View.INVISIBLE);
+        }
+        else {
+            searchLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public void openDrawer() {
         super.openDrawer();
-        searchEditText.setClickable(false);
+
     }
 
     @Override
     public void closeDrawer() {
         super.closeDrawer();
-        searchEditText.setClickable(true);
+
     }
 }

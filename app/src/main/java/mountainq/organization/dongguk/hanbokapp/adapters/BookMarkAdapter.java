@@ -49,6 +49,7 @@ public class BookMarkAdapter extends BaseAdapter {
     }
 
     private class ViewHolder{
+        TextView index;
         TextView nameText;
         Button delBtn;
     }
@@ -59,6 +60,7 @@ public class BookMarkAdapter extends BaseAdapter {
         ViewHolder holder = new ViewHolder();
         if(convertView == null){
             v = View.inflate(context, R.layout.xx_bookmark_item, null);
+            holder.index = (TextView) v.findViewById(R.id.idx);
             holder.nameText = (TextView) v.findViewById(R.id.nameText);
             holder.delBtn = (Button) v.findViewById(R.id.delBtn);
             v.setTag(holder);
@@ -66,6 +68,7 @@ public class BookMarkAdapter extends BaseAdapter {
             holder = (ViewHolder) v.getTag();
         }
         BookMark item = items.get(position);
+        holder.nameText.setText("-");
         holder.nameText.setText(item.getTitle());
         return v;
     }
