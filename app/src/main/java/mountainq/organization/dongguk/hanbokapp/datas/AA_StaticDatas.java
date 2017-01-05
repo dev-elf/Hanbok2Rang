@@ -32,7 +32,7 @@ public class AA_StaticDatas {
     public static final String TOUR_API_KEYWORD = "http://api.visitkorea.or.kr/openapi/service/rest/KorService/searchKeyword?ServiceKey="+SERVICE_KEY+"&MobileOS="+MOBILE_OS+"&MobileApp="+APP_NAME+"&ContentTypeId="+CONTENT_TYPE_ID+"&areaCode=1"+"&keyword=";
 
 
-    public static final String DAUM_MAPS_ANDROID_APP_API_KEY = "76116052596d882190bc441020d6c61b";
+    public static final String DAUM_MAPS_ANDROID_APP_API_KEY = "5f2c3efefb03e28627cbf90863bfd053";
     /**
      * 데이터 필드 영역
      */

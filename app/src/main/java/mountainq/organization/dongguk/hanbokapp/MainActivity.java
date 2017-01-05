@@ -23,11 +23,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.appindexing.Thing;
-import com.google.android.gms.common.api.GoogleApiClient;
-
 import net.daum.mf.map.api.CalloutBalloonAdapter;
 import net.daum.mf.map.api.CameraUpdateFactory;
 import net.daum.mf.map.api.MapCircle;
@@ -93,6 +88,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     private static final String DB_SUCC = "success";
     private int intval = -1;
     private int intval2 = 100;
+    private int h_status = 1;
     /**
      * 맵뷰를 가져오기
      */
@@ -115,11 +111,6 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     ImageView searchButton;
     private ArrayList<LocationItem> locationItems = new ArrayList<>();
     LinearLayout searchLayout;
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,16 +137,19 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
         ViewGroup mapViewContainer = (ViewGroup) findViewById(R.id.daumMap);
         mapViewContainer.addView(mapLayout);
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
     }
 
 
     private AdapterView.OnItemClickListener bookMarkClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            mapView.removeAllPOIItems();
             addPin(bookMarks.get(position));
+            MapPOIItem[] poiItems = mapView.getPOIItems();
+            if (poiItems.length > 0) {
+                mapView.selectPOIItem(poiItems[0], false);
+            }
             closeDrawer();
         }
     };
@@ -218,7 +212,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 }
                 break;
             case R.id.mapFunctionNear:
-                findHanbok();
+                findHanbok(250);
                 break;
             case R.id.mapFunctionSetting:
                 if (mapView.getMapType().toString().equals("Standard")) {
@@ -235,6 +229,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 break;
             case R.id.searchbtn:
                 searchByKeyword(searchEditText.getText().toString());
+                searchEditText.setText("");
                 break;
         }
     }
@@ -256,40 +251,18 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
     }
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
-    public Action getIndexApiAction() {
-        Thing object = new Thing.Builder()
-                .setName("Main Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
-                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
-                .build();
-        return new Action.Builder(Action.TYPE_VIEW)
-                .setObject(object)
-                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
-                .build();
-    }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client.connect();
-        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        AppIndex.AppIndexApi.end(client, getIndexApiAction());
-        client.disconnect();
     }
 
     class DBTask extends AsyncTask<String, Integer, String> {
@@ -454,13 +427,19 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                     }).create();
             dialog.show();
         }
+
         private AdapterView.OnItemClickListener searchListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 addPin(locationItems.get(position));
+                MapPOIItem[] poiItems = mapView.getPOIItems();
+                if (poiItems.length > 0) {
+                    mapView.selectPOIItem(poiItems[0], false);
+                }
                 hideList();
             }
         };
+
         @Override
         //아이템 클릭
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -488,6 +467,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         search_item.address = item.getAddress();
         search_item.phone = item.getPhoneNumber();
         search_item.imageUrl = item.getFirstImgUrl();
+        search_item.setLatitude(item.getLatitude());
+        search_item.setLongitude(item.getLongitude());
         if (search_item.category == null) search_item.category = "관광";
         MapPOIItem marker = new MapPOIItem();
         marker.setItemName("Default Marker");
@@ -515,6 +496,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         search_item.setTitle(item.getTitle());
         search_item.address = item.getAddress();
         search_item.phone = item.getPhone();
+        search_item.setLatitude(item.getLatitude());
+        search_item.setLongitude(item.getLongitude());
         if (search_item.category == null) search_item.category = "북마크";
         MapPOIItem marker = new MapPOIItem();
         marker.setItemName("Default Marker");
@@ -815,9 +798,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     //말풍선 커스텀
 
     @Override
-    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType)  {
+    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
         final Item item = mTagItemMap.get(mapPOIItem.getTag());
-        //Toast.makeText(this, "api는" + item.category + "tag는" + mapPOIItem.getTag(), Toast.LENGTH_SHORT).show();
+        // Toast.makeText(this, "api는" + item.category + "tag는" + mapPOIItem.getTag() + "이름은" + item.getLatitude(), Toast.LENGTH_SHORT).show();
         StringBuilder sb = new StringBuilder();
         sb.append(item.getTitle()).append("\n");
         sb.append(item.address).append("\n");
@@ -840,7 +823,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     if (!item.category.equals("관광")) c_map = t_map;
-
+                    //Toast.makeText(MainActivity.this, item.getLongitude() + "" + item.getLatitude() + item.getTitle(), Toast.LENGTH_SHORT).show();
                     searchByLocation(item.getLongitude(), item.getLatitude());
 
                 }
@@ -849,21 +832,21 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             bookMarks = dbm.printList();
             Iterator<BookMark> iterator = bookMarks.iterator();
             String name = null;
-            boolean bm =false;
+            boolean bm = false;
             while (iterator.hasNext()) {
                 BookMark b = iterator.next();
                 name = b.getTitle();
                 if (name.equals(item.getTitle())) {
-                    bm=true;
-                    Log.i(LOG_TAG + "즐찾 없애야함", name + ":" + item.getTitle()+bm);
+                    bm = true;
+                    Log.i(LOG_TAG + "즐찾 없애야함", name + ":" + item.getTitle() + bm);
                     break;
-                }else{
-                    bm=false;
+                } else {
+                    bm = false;
                     Log.i(LOG_TAG + "즐찾 업애면안됨", name + ":" + item.getTitle());
                 }
             }
-            Log.i(LOG_TAG + "마지막 bm", name + ":" + item.getTitle()+"bm:"+bm);
-            if(bm==false){
+            Log.i(LOG_TAG + "마지막 bm", name + ":" + item.getTitle() + "bm:" + bm);
+            if (bm == false) {
                 alertDialog.setNegativeButton("즐겨찾기", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -873,7 +856,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
                         BookMark bookMark = new BookMark(item.id, item.getTitle(), Double.toString(item.getLongitude()), Double.toString(item.getLatitude()), item.address, item.phone);
                         insertBookMark(bookMark);
-                        findHanbok();
+                        findHanbok(250);
                     }
                 });
             }
@@ -950,7 +933,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         super.closeDrawer();
 
     }
-    public void findHanbok(){
+
+    public void findHanbok(int rad) {
+        final int aa = rad;
         ImageView imgview = (ImageView) findViewById(R.id.mapFunctionMyLocation);
         imgview.setImageResource(R.drawable.my_location_2);
         mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
@@ -960,7 +945,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         MapPoint.GeoCoordinate geoCoordinate = mapView.getMapCenterPoint().getMapPointGeoCoord();
         double latitude = geoCoordinate.latitude; // 위도
         double longitude = geoCoordinate.longitude; // 경도
-        int radius = 250; // 중심 좌표부터의 반경거리. 특정 지역을 중심으로 검색하려고 할 경우 사용. meter 단위 (0 ~ 10000)
+        int radius = rad; // 중심 좌표부터의 반경거리. 특정 지역을 중심으로 검색하려고 할 경우 사용. meter 단위 (0 ~ 10000)
         int page = 1; // 페이지 번호 (1 ~ 3). 한페이지에 15개
         String apikey = DAUM_MAPS_ANDROID_APP_API_KEY;
 
@@ -971,6 +956,11 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 mapView.removeAllPOIItems(); // 기존 검색 결과 삭제
                 mapView.removeAllPolylines();
                 showResult(itemList); // 검색 결과 보여줌
+                MapPOIItem[] poiItems = mapView.getPOIItems();
+                if (poiItems.length < 1) {
+                    h_status = 0;
+                    if (aa == 500) h_status = 1;
+                } else h_status = 1;
             }
 
             @Override
@@ -982,11 +972,13 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
         MapCircle circle1 = new MapCircle(
                 MapPoint.mapPointWithGeoCoord(latitude, longitude), // center
-                350, // radius
+                rad + 100, // radius
                 Color.argb(77, 255, 165, 0), // strokeColor
                 Color.argb(77, 255, 255, 0) // fillColor
         );
         circle1.setTag(1234);
         mapView.addCircle(circle1);
+
+
     }
 }
