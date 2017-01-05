@@ -478,9 +478,92 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds, padding));
             dialog.dismiss();
         }
+    }
 
+
+    /*
+        2017-01-05  업데이트 부분
+        핀꽂기, 폴리라인 그리기 메소드를 각각 만들어서
+        코드를 알아보기 쉽고 간결하게 정리하면 좋겠다
+     */
+
+    /**
+     * 핀 꽂기 관광지
+     * @param item 관광지 객체
+     */
+    private void addPin(LocationItem item){
+        Item searchItem = new Item();
+        searchItem.title = item.getLocationName();
+        searchItem.address = item.getAddress();
+        searchItem.phone = item.getPhoneNumber();
+        searchItem.imageUrl = item.getFirstImgUrl();
+
+        if(searchItem.category == null) searchItem.category = "관광";
+
+        MapPOIItem marker = new MapPOIItem();
+        marker.setItemName("Default Marker");
+        int interval = (int)(Math.random()*-100)+1;
+        marker.setTag(interval);
+
+        MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(item.getMapLat(), item.getMapLon());
+
+        marker.setMapPoint(mapPoint);
+        marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+        marker.setCustomImageResourceId(R.drawable.picker_blue);
+        marker.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
+        marker.setCustomSelectedImageResourceId(R.drawable.picker_green);
+        marker.setCustomImageAutoscale(false);
+        mapView.addPOIItem(marker);
+        mTagItemMap.put(marker.getTag(), searchItem);
+        mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
+    }
+
+    /**
+     * 핀 꽂기 북마크
+     * @param item 북마크 객체
+     */
+    private void addPin(BookMark item){
 
     }
+
+    /**
+     * 폴리라인 그리기 관광지-관광지
+     * @param startItem 시작점
+     * @param endItem   끝점
+     */
+
+    private void addPolyLine(LocationItem startItem, LocationItem endItem){
+
+    }
+
+    /**
+     * 폴리라인 그리기 북마크-관광지
+     * @param startItem 시작점
+     * @param endItem   끝점
+     */
+    private void addPolyLine(BookMark startItem, LocationItem endItem){
+
+    }
+
+    /**
+     * 폴리라인 그리기 관광지-북마크
+     * @param startItem 시작점
+     * @param endItem   끝점
+     */
+    private void addPolyLine(LocationItem startItem, BookMark endItem){
+
+    }
+
+    /**
+     * 폴리라인 그리기 북마크-북마크
+     * @param startItem 시작점
+     * @param endItem   끝점
+     */
+    private void addPolyLine(BookMark startItem, BookMark endItem){
+
+    }
+
+
     /**
      * 다음 맵 코드
      */
