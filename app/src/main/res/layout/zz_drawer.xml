@@ -65,8 +65,8 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:scaleType="centerInside"
             android:src="@drawable/star_on" />
 
@@ -82,7 +82,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:divider="@color/colorPrimaryDark"
+        android:divider="@color/menuSheetBg"
         android:dividerHeight="1dp" />
 
     <LinearLayout style="@style/menuLayout">
