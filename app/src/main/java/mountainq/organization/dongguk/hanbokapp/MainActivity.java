@@ -152,7 +152,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
             final BookMark item = bookMarks.get(position);
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-                    .setMessage(item.getLocationName() + "를 즐겨찾기에서 지우시겠습니까?")
+                    .setMessage(item.getTitle() + "를 즐겨찾기에서 지우시겠습니까?")
                     .setPositiveButton("예", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -258,7 +258,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     }
 
     private void insertBookMark(BookMark item){
-        new DBTask().execute(DB_INSERT, String.valueOf(item.getPrimeKey()), item.getLocationName(), String.valueOf(item.getLon()), String.valueOf(item.getLat()));
+        new DBTask().execute(DB_INSERT, String.valueOf(item.getPrimeKey()), item.getTitle(), String.valueOf(item.getLongitude()), String.valueOf(item.getLatitude()));
     }
 
     private void deleteBookMark(BookMark item){
@@ -442,10 +442,10 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         public void onItemClick(AdapterView<?> parent, View v, int position, long id){
             LocationItem b = locationItems.get(position);
 
-            double lat= b.getMapLat();
-            double lon=b.getMapLon();
+            double lat= b.getLatitude();
+            double lon=b.getLongitude();
             Item search_item=new Item();
-            search_item.title=b.getLocationName();
+            search_item.title=b.getTitle();
             search_item.address=b.getAddress();
             search_item.phone=b.getPhoneNumber();
             search_item.imageUrl=b.getFirstImgUrl();
@@ -496,7 +496,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
      */
     private void addPin(LocationItem item){
         Item searchItem = new Item();
-        searchItem.title = item.getLocationName();
+        searchItem.title = item.getTitle();
         searchItem.address = item.getAddress();
         searchItem.phone = item.getPhoneNumber();
         searchItem.imageUrl = item.getFirstImgUrl();
@@ -508,7 +508,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         int interval = (int)(Math.random()*-100)+1;
         marker.setTag(interval);
 
-        MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(item.getMapLat(), item.getMapLon());
+        MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude());
 
         marker.setMapPoint(mapPoint);
         marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
@@ -692,7 +692,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             ImageView imageViewBadge = (ImageView) mCalloutBalloon.findViewById(R.id.badge);
             while (iterator.hasNext()){
                 BookMark b = (BookMark)iterator.next();
-                name=b.getLocationName();
+                name=b.getTitle();
                 if(name.equals(item.title)){
                     imageViewBadge.setImageResource(R.drawable.star_on);
                 }else{

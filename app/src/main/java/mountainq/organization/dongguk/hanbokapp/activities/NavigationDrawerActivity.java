@@ -65,7 +65,7 @@ public abstract class NavigationDrawerActivity extends SActivity implements Navi
                 }
             };
             mDrawerLayout.addDrawerListener(mDrawerToggle);
-        } else Log.d("ggg", "툴바없음");
+        } else Log.e("test", "툴바없음");
 
     }
 

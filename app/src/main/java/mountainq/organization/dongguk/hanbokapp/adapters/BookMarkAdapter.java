@@ -66,7 +66,7 @@ public class BookMarkAdapter extends BaseAdapter {
             holder = (ViewHolder) v.getTag();
         }
         BookMark item = items.get(position);
-        holder.nameText.setText(item.getLocationName());
+        holder.nameText.setText(item.getTitle());
         return v;
     }
 }

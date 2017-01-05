@@ -24,13 +24,13 @@ public class TourAPIHandler extends DefaultHandler {
         String data = new String(ch, start, length);
         switch (tagName){
             case "mapx":
-                item.setMapLon(data);
+                item.setLongitude(data);
                 break;
             case "mapy":
-                item.setMapLat(data);
+                item.setLatitude(data);
                 break;
             case "title":
-                item.setLocationName(data);
+                item.setTitle(data);
                 break;
             case "firstimage":
                 item.setFirstImgUrl(data);
