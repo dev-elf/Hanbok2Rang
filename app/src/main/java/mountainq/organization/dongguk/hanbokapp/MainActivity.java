@@ -431,6 +431,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         private AdapterView.OnItemClickListener searchListener = new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mapView.removeAllPOIItems();
                 addPin(locationItems.get(position));
                 MapPOIItem[] poiItems = mapView.getPOIItems();
                 if (poiItems.length > 0) {
@@ -709,8 +710,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             textViewDesc.setText(item.address);
             if (item.category.equals("관광")) {
                 imageViewBadge.setImageDrawable(createDrawableFromUrl(item.imageUrl));
-            }
-            t_map = poiItem.getMapPoint();
+            }else{t_map = poiItem.getMapPoint();}
+
 
             return mCalloutBalloon;
         }
@@ -822,10 +823,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             alertDialog.setPositiveButton("관광지추천받기", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if (!item.category.equals("관광")) c_map = t_map;
-                    //Toast.makeText(MainActivity.this, item.getLongitude() + "" + item.getLatitude() + item.getTitle(), Toast.LENGTH_SHORT).show();
+                    c_map = t_map;
                     searchByLocation(item.getLongitude(), item.getLatitude());
-
                 }
             });
             DataBaseManager dbm = new DataBaseManager(mContext);
