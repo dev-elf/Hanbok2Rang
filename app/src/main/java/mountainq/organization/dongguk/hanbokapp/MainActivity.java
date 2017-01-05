@@ -70,6 +70,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     /**
      * 종원 커스텀
      */
+    private double rand =Math.random();
     private static final String LOG_TAG = "MainActivity";
     private MapView mapView;
     private MapLayout mapLayout;
@@ -152,7 +153,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
             final BookMark item = bookMarks.get(position);
             AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
-                    .setMessage(item.getLocationName() + "를 즐겨찾기에서 지우시겠습니까?")
+                    .setMessage(item.getTitle() + "를 즐겨찾기에서 지우시겠습니까?")
                     .setPositiveButton("예", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -258,7 +259,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     }
 
     private void insertBookMark(BookMark item){
-        new DBTask().execute(DB_INSERT, String.valueOf(item.getPrimeKey()), item.getLocationName(), String.valueOf(item.getLon()), String.valueOf(item.getLat()));
+        new DBTask().execute(DB_INSERT, String.valueOf(item.getPrimeKey()), item.getTitle(), String.valueOf(item.getLongitude()), String.valueOf(item.getLatitude()),item.getAddress(),item.getPhone());
     }
 
     private void deleteBookMark(BookMark item){
@@ -283,7 +284,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                     bookMarks = dbm.printList();
                     return DB_INITIAL;
                 case DB_INSERT:
-                    if(dbm.insert(params[1], params[2], params[3], params[4])){
+                    if(dbm.insert(params[1], params[2], params[3], params[4],params[5],params[6])){
                         bookMarks = dbm.printList();
                         return DB_INSERT + DB_SUCC;
                     }
@@ -440,45 +441,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         @Override
         //아이템 클릭
         public void onItemClick(AdapterView<?> parent, View v, int position, long id){
-            LocationItem b = locationItems.get(position);
-
-            double lat= b.getMapLat();
-            double lon=b.getMapLon();
-            Item search_item=new Item();
-            search_item.title=b.getLocationName();
-            search_item.address=b.getAddress();
-            search_item.phone=b.getPhoneNumber();
-            search_item.imageUrl=b.getFirstImgUrl();
-            if(search_item.category==null) {
-                search_item.category = "관광";
-            }
-            MapPOIItem marker = new MapPOIItem();
-            marker.setItemName("Default Marker");
-            double rand =Math.random();
-            int intval = (int)(rand*-100)+1;
-            marker.setTag(intval);
-            MapPoint this_point = MapPoint.mapPointWithGeoCoord(lat, lon);
-            marker.setMapPoint(this_point);
-            marker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 기본으로 제공하는 BluePin 마커 모양.
-            marker.setCustomImageResourceId(R.drawable.picker_blue); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
-            marker.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
-            marker.setCustomSelectedImageResourceId(R.drawable.picker_green);
-            marker.setCustomImageAutoscale(false);
-            mapView.addPOIItem(marker);
-            mTagItemMap.put(marker.getTag(), search_item);
-            mapView.moveCamera(CameraUpdateFactory.newMapPoint(this_point));
-
-//            Toast.makeText(getApplicationContext(), marker.getTag()+"이동하였습니다.", Toast.LENGTH_SHORT).show();
-
-            MapPolyline polyline = new MapPolyline();
-            polyline.setTag(1000);
-            polyline.setLineColor(Color.argb(128, 255, 51, 0)); // Polyline 컬러 지정.
-            polyline.addPoint(this_point);
-            polyline.addPoint(c_map);
-            mapView.addPolyline(polyline);
-            MapPointBounds mapPointBounds = new MapPointBounds(polyline.getMapPoints());
-            int padding = 100; // px
-            mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds, padding));
+            addPin(locationItems.get(position));
+            addPolyLine(locationItems.get(position).getLatitude(), locationItems.get(position).getLongitude());
             dialog.dismiss();
         }
     }
@@ -495,48 +459,67 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
      * @param item 관광지 객체
      */
     private void addPin(LocationItem item){
-        Item searchItem = new Item();
-        searchItem.title = item.getLocationName();
-        searchItem.address = item.getAddress();
-        searchItem.phone = item.getPhoneNumber();
-        searchItem.imageUrl = item.getFirstImgUrl();
-
-        if(searchItem.category == null) searchItem.category = "관광";
-
+        Item search_item=new Item();
+        search_item.setTitle(item.getTitle());
+        search_item.address=item.getAddress();
+        search_item.phone=item.getPhoneNumber();
+        search_item.imageUrl=item.getFirstImgUrl();
+        if(search_item.category==null) search_item.category = "관광";
         MapPOIItem marker = new MapPOIItem();
         marker.setItemName("Default Marker");
-        int interval = (int)(Math.random()*-100)+1;
-        marker.setTag(interval);
-
-        MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(item.getMapLat(), item.getMapLon());
-
-        marker.setMapPoint(mapPoint);
-        marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
-        marker.setCustomImageResourceId(R.drawable.picker_blue);
+        int intval = (int)(rand*-100)+1;
+        marker.setTag(intval);
+        marker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude()));
+        marker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 기본으로 제공하는 BluePin 마커 모양.
+        marker.setCustomImageResourceId(R.drawable.picker_blue); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
         marker.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
         marker.setCustomSelectedImageResourceId(R.drawable.picker_green);
         marker.setCustomImageAutoscale(false);
         mapView.addPOIItem(marker);
-        mTagItemMap.put(marker.getTag(), searchItem);
-        mapView.moveCamera(CameraUpdateFactory.newMapPoint(mapPoint));
+        mTagItemMap.put(marker.getTag(), search_item);
+        mapView.moveCamera(CameraUpdateFactory.newMapPoint(MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude())));
     }
 
-    /**
+      /**
      * 핀 꽂기 북마크
      * @param item 북마크 객체
      */
     private void addPin(BookMark item){
-
+        Item search_item=new Item();
+        search_item.setTitle(item.getTitle());
+        search_item.address=item.getAddress();
+        search_item.phone=item.getPhone();
+        if(search_item.category==null) search_item.category = "북마크";
+        MapPOIItem marker = new MapPOIItem();
+        marker.setItemName("Default Marker");
+        marker.setTag(200+(int)(rand*-100)+1);
+        marker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude()));
+        marker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 기본으로 제공하는 BluePin 마커 모양.
+        marker.setCustomImageResourceId(R.drawable.picker_blue); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+        marker.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
+        marker.setCustomSelectedImageResourceId(R.drawable.picker_green);
+        marker.setCustomImageAutoscale(false);
+        mapView.addPOIItem(marker);
+        mTagItemMap.put(marker.getTag(), search_item);
+        mapView.moveCamera(CameraUpdateFactory.newMapPoint(MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude())));
     }
 
     /**
-     * 폴리라인 그리기 관광지-관광지
-     * @param startItem 시작점
-     * @param endItem   끝점
+     * 폴리라인 그리기 검색지-관광지
+     * @param lat 위도
+     * @param lon   경도
      */
 
-    private void addPolyLine(LocationItem startItem, LocationItem endItem){
-
+    private void addPolyLine(double lat, double lon){
+        MapPolyline polyline = new MapPolyline();
+        polyline.setTag(1000+(int)(rand*100)+1);
+        polyline.setLineColor(Color.argb(128, 255, 51, 0)); // Polyline 컬러 지정.
+        polyline.addPoint(MapPoint.mapPointWithGeoCoord(lat, lon));
+        polyline.addPoint(c_map);
+        mapView.addPolyline(polyline);
+        MapPointBounds mapPointBounds = new MapPointBounds(polyline.getMapPoints());
+        int padding = 100; // px
+        mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds, padding));
     }
 
     /**
@@ -692,8 +675,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             ImageView imageViewBadge = (ImageView) mCalloutBalloon.findViewById(R.id.badge);
             while (iterator.hasNext()){
                 BookMark b = (BookMark)iterator.next();
-                name=b.getLocationName();
-                if(name.equals(item.title)){
+                name=b.getTitle();
+                if(name.equals(item.getTitle())){
                     imageViewBadge.setImageResource(R.drawable.star_on);
                 }else{
                     imageViewBadge.setImageResource(R.drawable.star_off);
@@ -701,7 +684,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             }
 
             TextView textViewTitle = (TextView) mCalloutBalloon.findViewById(R.id.title);
-            textViewTitle.setText(item.title);
+            textViewTitle.setText(item.getTitle());
             TextView textViewDesc = (TextView) mCalloutBalloon.findViewById(R.id.desc);
             textViewDesc.setText(item.address);
             if(item.category.equals("관광")){
@@ -746,9 +729,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 //            bitmap.setHeight(mData.getWidth()/10);
 //            bitmap.setWidth(mData.getWidth()/10);
             MapPOIItem poiItem = new MapPOIItem();
-            poiItem.setItemName(item.title);
+            poiItem.setItemName(item.getTitle());
             poiItem.setTag(i);
-            MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(item.latitude, item.longitude);
+            MapPoint mapPoint = MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude());
             poiItem.setMapPoint(mapPoint);
             mapPointBounds.add(mapPoint);
             poiItem.setMarkerType(MapPOIItem.MarkerType.CustomImage);
@@ -797,7 +780,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         final Item item = mTagItemMap.get(mapPOIItem.getTag());
         //Toast.makeText(this, "api는"+item.category+"tag는"+mapPOIItem.getTag(), Toast.LENGTH_SHORT).show();
         StringBuilder sb = new StringBuilder();
-        sb.append(item.title).append("\n");
+        sb.append(item.getTitle()).append("\n");
         sb.append(item.address).append("\n");
         sb.append(item.phone).append("\n");
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
@@ -819,13 +802,13 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     c_map=t_map;
-                    searchByLocation(item.longitude, item.latitude);
+                    searchByLocation(item.getLongitude(), item.getLatitude());
                 }
             });
             alertDialog.setNegativeButton("즐겨찾기", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    BookMark bookMark = new BookMark(item.id, item.title, Double.toString(item.longitude), Double.toString(item.latitude));
+                    BookMark bookMark = new BookMark(item.id, item.getTitle(), Double.toString(item.getLongitude()), Double.toString(item.getLatitude()),item.address,item.phone);
                     insertBookMark(bookMark);
                 }
             });

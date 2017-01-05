@@ -156,15 +156,15 @@ public class Searcher {
             for (int i = 0; i < objects.length(); i++) {
                 JSONObject object = objects.getJSONObject(i);
                 Item item = new Item();
-                item.title = object.getString("title");
+                item.setTitle(object.getString("title"));
                 item.imageUrl = object.getString("imageUrl");
                 item.address = object.getString("address");
                 item.newAddress = object.getString("newAddress");
                 item.zipcode = object.getString("zipcode");
                 item.phone = object.getString("phone");
                 item.category = object.getString("category");
-                item.latitude = object.getDouble("latitude");
-                item.longitude = object.getDouble("longitude");
+                item.setLatitude(object.getDouble("latitude"));
+                item.setLongitude(object.getDouble("longitude"));
                 item.distance = object.getDouble("distance");
                 item.direction = object.getString("direction");
                 item.id = object.getString("id");

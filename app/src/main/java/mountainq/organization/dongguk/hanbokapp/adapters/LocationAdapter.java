@@ -81,7 +81,7 @@ public class LocationAdapter extends BaseAdapter /*implements Filterable*/ {
          */
 
         LocationItem item = items.get(position);
-        holder.nameText.setText(item.getLocationName());
+        holder.nameText.setText(item.getTitle());
         llp = new LinearLayout.LayoutParams(mData.getHeight() / 13, mData.getHeight() / 13);
         holder.firstImgView.setLayoutParams(llp);
         if (item.getFirstImgUrl() != null && !item.getFirstImgUrl().equals(""))
