@@ -19,6 +19,8 @@ import java.util.HashMap;
 
 import mountainq.organization.dongguk.hanbokapp.R;
 
+import static android.view.View.GONE;
+
 
 /**
  * Created by dnay2 on 2016-11-16.
@@ -30,7 +32,7 @@ public abstract class SActivity extends AppCompatActivity {
     private LinearLayout innerLayout = null;
 
     public TextView toolbarText;
-    protected ImageView backBtn;
+    protected ImageView backBtn, logoImg;
     protected Typeface fontNanum;
     protected Context mContext;
     protected static final HashMap<String, String> menuHashMap = new HashMap<>();
@@ -40,7 +42,6 @@ public abstract class SActivity extends AppCompatActivity {
         Log.d("test", "abstract class created");
         if (layout == R.layout.activity_main){
             setContentView(layout);
-            backBtn = (ImageView) findViewById(R.id.backBtn);
         }
         else {
             setContentView(R.layout.toolbar_layout);
@@ -60,6 +61,16 @@ public abstract class SActivity extends AppCompatActivity {
             toolbar.setTitle("");
             setSupportActionBar(toolbar);
             Log.d("test", "툴바 위치 고정");
+            backBtn = (ImageView) super.findViewById(R.id.backBtn);
+            backBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
+            toolbarText = (TextView) super.findViewById(R.id.toolbarText);
+            logoImg = (ImageView) super.findViewById(R.id.logo);
+            Picasso.with(this).load(R.drawable.hanbok_logo).fit().into(logoImg);
         }
 
 
@@ -74,15 +85,15 @@ public abstract class SActivity extends AppCompatActivity {
         Log.d("test", "toolbar is ");
         if (toolbar == null) return;
         Log.d("test", "not null");
-        ((TextView) findViewById(R.id.toolbarText)).setText(text);
+        toolbarText.setText(text);
     }
 
     protected void visibleLogo(boolean visible) {
         if (toolbar == null) return;
-        ImageView logo = (ImageView) findViewById(R.id.logo);
-        Picasso.with(this).load(R.drawable.hanbok_logo).fit().into(logo);
-        logo.setVisibility(View.VISIBLE);
+        if(visible) logoImg.setVisibility(View.VISIBLE);
+        else logoImg.setVisibility(View.GONE);
     }
+
 
     /**
      * 툴바 밑에 들어가는 뷰에서 id에 대한 뷰를 찾는다.
@@ -103,27 +114,18 @@ public abstract class SActivity extends AppCompatActivity {
      */
     protected void setToolbar(String text) {
         if (toolbar == null) return;
-        showBackBtn();
+        visibleBackBtn(true);
         if(toolbarText != null) toolbarText.setText(text);
     }
 
-    protected void showBackBtn() {
-        if (super.findViewById(R.id.backBtn) == null) {
-            backBtn = (ImageView) super.findViewById(R.id.backBtn);
-            backBtn.setVisibility(View.VISIBLE);
-            backBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onBackPressed();
-                }
-            });
-        } else {
-            backBtn.setVisibility(View.VISIBLE);
-        }
+    protected void visibleBackBtn(boolean visible) {
+        if(toolbar == null) return;
+        if(visible) backBtn.setVisibility(View.VISIBLE);
+        else backBtn.setVisibility(View.GONE);
     }
 
     protected void hideBackBtn() {
-        if (backBtn != null) backBtn.setVisibility(View.GONE);
+        if (backBtn != null) backBtn.setVisibility(GONE);
     }
 
 }

@@ -4,27 +4,22 @@ package mountainq.organization.dongguk.hanbokapp.datas;
  * Created by dnay2 on 2017-01-04.
  */
 
-public class BookMark {
+public class BookMark extends HanbokMapPoint {
 
     private int primeKey;
-    private String locationName;
-    private double lat;
-    private double lon;
 
-
-    public BookMark(int primeKey, String locationName, double lat, double lon) {
+    public BookMark(int primeKey, String title, double latitude, double longitude) {
         this.primeKey = primeKey;
-        this.locationName = locationName;
-        this.lat = lat;
-        this.lon = lon;
-
+        setLongitude(longitude);
+        setLatitude(latitude);
+        setTitle(title);
     }
 
-    public BookMark(String primeKey, String locationName, String lat, String lon) {
+    public BookMark(String primeKey, String title, String latitude, String longitude) {
         this.primeKey = Integer.parseInt(primeKey);
-        this.locationName = locationName;
-        this.lat = Double.parseDouble(lat);
-        this.lon = Double.parseDouble(lon);
+        setLongitude(longitude);
+        setLatitude(latitude);
+        setTitle(title);
 
     }
 
@@ -36,35 +31,11 @@ public class BookMark {
         this.primeKey = primeKey;
     }
 
-    public String getLocationName() {
-        return locationName;
-    }
-
-    public void setLocationName(String locationName) {
-        this.locationName = locationName;
-    }
-
-    public double getLon() {
-        return lon;
-    }
-
-    public void setLon(double lon) {
-        this.lon = lon;
-    }
-
-    public double getLat() {
-        return lat;
-    }
-
-    public void setLat(double lat) {
-        this.lat = lat;
-    }
-
     @Override
     public String toString() {
         return "BookMark{" +
                 "primeKey=" + primeKey +
-                ", locationName='" + locationName + '\'' +
+                ", locationName='" + getTitle() + '\'' +
                 '}';
     }
 }

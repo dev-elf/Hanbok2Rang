@@ -38,8 +38,8 @@ public class DataBaseManager extends SQLiteOpenHelper {
             "CREATE TABLE " + TABLE_NAME + " (" +
                     DataEntry._ID + INTEGER_TYPE + " PRIMARY KEY AUTOINCREMENT, " +
                     DataEntry.COLUMN_PRIMEKEY + INTEGER_TYPE + COMMA_SEP +
-                    DataEntry.COLUMN_LOCATION_NAME + TEXT_TYPE +
-                    DataEntry.COLUMN_LON + TEXT_TYPE +
+                    DataEntry.COLUMN_LOCATION_NAME + TEXT_TYPE + COMMA_SEP +
+                    DataEntry.COLUMN_LON + TEXT_TYPE + COMMA_SEP +
                     DataEntry.COLUMN_LAT + TEXT_TYPE + " )";
     private static final String SQL_DELETE_BOOKMARK =
             "DROP TABLE IF EXISTS " + DataEntry.TABLE_NAME;

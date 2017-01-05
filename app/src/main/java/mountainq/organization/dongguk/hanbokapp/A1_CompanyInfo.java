@@ -17,7 +17,7 @@ public class A1_CompanyInfo extends SActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.activity_company_info);
         init();
-        showBackBtn();
+        visibleBackBtn(true);
     }
 
     private void init(){

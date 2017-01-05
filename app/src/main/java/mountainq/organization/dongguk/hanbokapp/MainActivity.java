@@ -138,10 +138,12 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         mapViewContainer.addView(mapLayout);
     }
 
+
+
     private AdapterView.OnItemClickListener bookMarkClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                addPin(bookMarks.get(position));
         }
     };
 
@@ -854,13 +856,13 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     private void showLIst(){
         searchListView.setVisibility(View.VISIBLE);
         container.setVisibility(View.GONE);
-        showBackBtn();
+        visibleBackBtn(true);
     }
 
     private void hideList(){
         searchListView.setVisibility(View.GONE);
         container.setVisibility(View.VISIBLE);
-        hideBackBtn();
+        visibleBackBtn(false);
     }
 
     @Override
