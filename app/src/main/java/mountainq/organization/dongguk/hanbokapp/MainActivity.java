@@ -88,7 +88,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     public AlertDialog dialog;
     private static final String DB_FAIL = "fail";
     private static final String DB_SUCC = "success";
-
+    private int intval =-1;
     /**
      * 맵뷰를 가져오기
      */
@@ -196,9 +196,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     }
 
     public void onFloatingButtonClickListener(View v){
+        ImageView imgview = (ImageView)findViewById(R.id.mapFunctionMyLocation);
         switch (v.getId()){
             case R.id.mapFunctionMyLocation:
-                ImageView imgview = (ImageView)findViewById(R.id.mapFunctionMyLocation);
                 if(mapView.getCurrentLocationTrackingMode().toString().equals("TrackingModeOff")){
                     imgview.setImageResource(R.drawable.my_location_1);
                     mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
@@ -209,14 +209,16 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 }
                 break;
             case R.id.mapFunctionNear:
+                imgview.setImageResource(R.drawable.my_location_2);
+                mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
+                mapView.setShowCurrentLocationMarker(false);
                 mapView.removeAllCircles();
                 String query = "한복대여점";
                 MapPoint.GeoCoordinate geoCoordinate = mapView.getMapCenterPoint().getMapPointGeoCoord();
                 double latitude = geoCoordinate.latitude; // 위도
                 double longitude = geoCoordinate.longitude; // 경도
                 int radius = 250; // 중심 좌표부터의 반경거리. 특정 지역을 중심으로 검색하려고 할 경우 사용. meter 단위 (0 ~ 10000)
-                int page = 1; // 페이지 번호 (1 ~ 3). 한페이지에 15개
-               //Toast.makeText(getApplicationContext(), String.format("위치는 (%f,%f)", latitude, longitude), Toast.LENGTH_SHORT).show();
+                int page =1; // 페이지 번호 (1 ~ 3). 한페이지에 15개
                 String apikey = DAUM_MAPS_ANDROID_APP_API_KEY;
 
                 Searcher searcher = new Searcher(); // net.daum.android.map.openapi.search.Searcher
@@ -224,6 +226,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                     @Override
                     public void onSuccess(List<Item> itemList) {
                         mapView.removeAllPOIItems(); // 기존 검색 결과 삭제
+                        mapView.removeAllPolylines();
                         showResult(itemList); // 검색 결과 보여줌
                     }
                     @Override
@@ -470,8 +473,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         if(search_item.category==null) search_item.category = "관광";
         MapPOIItem marker = new MapPOIItem();
         marker.setItemName("Default Marker");
-        int intval = (int)(rand*-100)+1;
-        marker.setTag(intval);
+
+        marker.setTag(intval--);
         marker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude()));
         marker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 기본으로 제공하는 BluePin 마커 모양.
         marker.setCustomImageResourceId(R.drawable.picker_blue); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
@@ -481,6 +484,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         mapView.addPOIItem(marker);
         mTagItemMap.put(marker.getTag(), search_item);
         mapView.moveCamera(CameraUpdateFactory.newMapPoint(MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude())));
+        Toast.makeText(getApplicationContext(), marker.getTag()+"이동하였습니다.", Toast.LENGTH_SHORT).show();
     }
 
       /**
@@ -514,6 +518,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
      */
 
     private void addPolyLine(double lat, double lon){
+        mapView.removeAllPolylines();
         MapPolyline polyline = new MapPolyline();
         polyline.setTag(1000+(int)(rand*100)+1);
         polyline.setLineColor(Color.argb(128, 255, 51, 0)); // Polyline 컬러 지정.
@@ -521,7 +526,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         polyline.addPoint(c_map);
         mapView.addPolyline(polyline);
         MapPointBounds mapPointBounds = new MapPointBounds(polyline.getMapPoints());
-        int padding = 100; // px
+        int padding = 200; // px
         mapView.moveCamera(CameraUpdateFactory.newMapPointBounds(mapPointBounds, padding));
     }
 
@@ -677,6 +682,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             String name= null;
             ImageView imageViewBadge = (ImageView) mCalloutBalloon.findViewById(R.id.badge);
             while (iterator.hasNext()){
+
                 BookMark b = (BookMark)iterator.next();
                 name=b.getTitle();
                 if(name.equals(item.getTitle())){
@@ -781,7 +787,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     @Override
     public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
         final Item item = mTagItemMap.get(mapPOIItem.getTag());
-        //Toast.makeText(this, "api는"+item.category+"tag는"+mapPOIItem.getTag(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "api는"+item.category+"tag는"+mapPOIItem.getTag(), Toast.LENGTH_SHORT).show();
         StringBuilder sb = new StringBuilder();
         sb.append(item.getTitle()).append("\n");
         sb.append(item.address).append("\n");
@@ -804,8 +810,10 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             alertDialog.setPositiveButton("관광지추천받기", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    c_map=t_map;
+                    if(!item.category.equals("관광")) c_map=t_map;
+
                     searchByLocation(item.getLongitude(), item.getLatitude());
+
                 }
             });
             alertDialog.setNegativeButton("즐겨찾기", new DialogInterface.OnClickListener() {
