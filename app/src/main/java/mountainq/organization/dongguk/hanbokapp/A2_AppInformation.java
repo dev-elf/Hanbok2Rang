@@ -44,6 +44,7 @@ public class A2_AppInformation extends SActivity {
         apis.add("한국관광공사 관광API(국문) : " + "키워드검색");
         apis.add("한국관광공사 관광API(국문) : " + "위치기반검색");
         apis.add("다음지도 API");
+        apis.add("다음로컬검색 API");
         adapter = new APIAdapter(this, apis);
         apiListView.setAdapter(adapter);
     }

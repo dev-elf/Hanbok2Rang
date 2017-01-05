@@ -1,7 +1,6 @@
 package mountainq.organization.dongguk.hanbokapp;
 
 
-import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,7 +9,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -24,6 +22,11 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import net.daum.mf.map.api.CalloutBalloonAdapter;
 import net.daum.mf.map.api.CameraUpdateFactory;
@@ -63,14 +66,14 @@ import static mountainq.organization.dongguk.hanbokapp.datas.AA_StaticDatas.DAUM
 
 /**
  * created by geusan 2017-01-03
- *  이곳은 메인 화면인데 보여줄게 없습니다ㅜㅜ
- *  지도만 보여줍시다
+ * 이곳은 메인 화면인데 보여줄게 없습니다ㅜㅜ
+ * 지도만 보여줍시다
  */
-public class MainActivity extends NavigationDrawerActivity implements MapView.OpenAPIKeyAuthenticationResultListener, MapView.MapViewEventListener, MapView.CurrentLocationEventListener, MapReverseGeoCoder.ReverseGeoCodingResultListener, MapView.POIItemEventListener{
+public class MainActivity extends NavigationDrawerActivity implements MapView.OpenAPIKeyAuthenticationResultListener, MapView.MapViewEventListener, MapView.CurrentLocationEventListener, MapReverseGeoCoder.ReverseGeoCodingResultListener, MapView.POIItemEventListener {
     /**
      * 종원 커스텀
      */
-    private double rand =Math.random();
+    private double rand = Math.random();
     private static final String LOG_TAG = "MainActivity";
     private MapView mapView;
     private MapLayout mapLayout;
@@ -88,7 +91,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     public AlertDialog dialog;
     private static final String DB_FAIL = "fail";
     private static final String DB_SUCC = "success";
-    private int intval =-1;
+    private int intval = -1;
+    private int intval2 = 100;
     /**
      * 맵뷰를 가져오기
      */
@@ -111,6 +115,11 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     ImageView searchButton;
     private ArrayList<LocationItem> locationItems = new ArrayList<>();
     LinearLayout searchLayout;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,11 +134,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         bookMarkListView.setOnItemClickListener(bookMarkClickListener);
         bookMarkListView.setOnItemLongClickListener(bookMarkLongClickListener);
         getBookMarkList();
-
-        ActivityCompat.requestPermissions(this, new String[]{
-        Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-        if(mapLayout == null) mapLayout = new MapLayout(this);
-        if(mapView == null) mapView = mapLayout.getMapView();
+        if (mapLayout == null) mapLayout = new MapLayout(this);
+        if (mapView == null) mapView = mapLayout.getMapView();
         mapView.setDaumMapApiKey(DAUM_MAPS_ANDROID_APP_API_KEY);
         mapView.setOpenAPIKeyAuthenticationResultListener(this);
         mapView.setMapViewEventListener(this);
@@ -140,14 +146,17 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
         ViewGroup mapViewContainer = (ViewGroup) findViewById(R.id.daumMap);
         mapViewContainer.addView(mapLayout);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
-
 
 
     private AdapterView.OnItemClickListener bookMarkClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                addPin(bookMarks.get(position));
+            addPin(bookMarks.get(position));
+            closeDrawer();
         }
     };
 
@@ -176,9 +185,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         }
     };
 
-    public void onMenuClickListener(View v){
+    public void onMenuClickListener(View v) {
         Intent intent = null;
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.g1_menu1:
                 intent = new Intent(MainActivity.this, A1_CompanyInfo.class);
                 break;
@@ -190,65 +199,31 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 intent = new Intent(MainActivity.this, A2_AppInformation.class);
                 break;
         }
-        if(intent != null) {
+        if (intent != null) {
             startActivity(intent);
         }
     }
 
-    public void onFloatingButtonClickListener(View v){
-        ImageView imgview = (ImageView)findViewById(R.id.mapFunctionMyLocation);
-        switch (v.getId()){
+    public void onFloatingButtonClickListener(View v) {
+        ImageView imgview = (ImageView) findViewById(R.id.mapFunctionMyLocation);
+        switch (v.getId()) {
             case R.id.mapFunctionMyLocation:
-                if(mapView.getCurrentLocationTrackingMode().toString().equals("TrackingModeOff")){
+                if (mapView.getCurrentLocationTrackingMode().toString().equals("TrackingModeOff")) {
                     imgview.setImageResource(R.drawable.my_location_1);
                     mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOnWithoutHeading);
-                }else{
+                } else {
                     imgview.setImageResource(R.drawable.my_location_2);
                     mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
                     mapView.setShowCurrentLocationMarker(false);
                 }
                 break;
             case R.id.mapFunctionNear:
-                imgview.setImageResource(R.drawable.my_location_2);
-                mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
-                mapView.setShowCurrentLocationMarker(false);
-                mapView.removeAllCircles();
-                String query = "한복대여점";
-                MapPoint.GeoCoordinate geoCoordinate = mapView.getMapCenterPoint().getMapPointGeoCoord();
-                double latitude = geoCoordinate.latitude; // 위도
-                double longitude = geoCoordinate.longitude; // 경도
-                int radius = 250; // 중심 좌표부터의 반경거리. 특정 지역을 중심으로 검색하려고 할 경우 사용. meter 단위 (0 ~ 10000)
-                int page =1; // 페이지 번호 (1 ~ 3). 한페이지에 15개
-                String apikey = DAUM_MAPS_ANDROID_APP_API_KEY;
-
-                Searcher searcher = new Searcher(); // net.daum.android.map.openapi.search.Searcher
-                searcher.searchKeyword(getApplicationContext(), query, latitude, longitude, radius, page, apikey, new OnFinishSearchListener() {
-                    @Override
-                    public void onSuccess(List<Item> itemList) {
-                        mapView.removeAllPOIItems(); // 기존 검색 결과 삭제
-                        mapView.removeAllPolylines();
-                        showResult(itemList); // 검색 결과 보여줌
-                    }
-                    @Override
-                    public void onFail() {
-                        showToast("API_KEY의 제한 트래픽이 초과되었습니다.");
-                    }
-                });
-
-
-                MapCircle circle1 = new MapCircle(
-                        MapPoint.mapPointWithGeoCoord(latitude, longitude), // center
-                        350, // radius
-                        Color.argb(77, 255, 165, 0), // strokeColor
-                        Color.argb(77, 255, 255, 0) // fillColor
-                );
-                circle1.setTag(1234);
-                mapView.addCircle(circle1);
+                findHanbok();
                 break;
-            case  R.id.mapFunctionSetting:
-                if(mapView.getMapType().toString().equals("Standard")){
+            case R.id.mapFunctionSetting:
+                if (mapView.getMapType().toString().equals("Standard")) {
                     mapView.setMapType(MapView.MapType.Hybrid);
-                }else{
+                } else {
                     mapView.setMapType(MapView.MapType.Standard);
                 }
                 break;
@@ -264,37 +239,72 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         }
     }
 
-    private void insertBookMark(BookMark item){
-        new DBTask().execute(DB_INSERT, String.valueOf(item.getPrimeKey()), item.getTitle(), String.valueOf(item.getLongitude()), String.valueOf(item.getLatitude()),item.getAddress(),item.getPhone());
+    private void insertBookMark(BookMark item) {
+        new DBTask().execute(DB_INSERT, String.valueOf(item.getPrimeKey()), item.getTitle(), String.valueOf(item.getLongitude()), String.valueOf(item.getLatitude()), item.getAddress(), item.getPhone());
     }
 
-    private void deleteBookMark(BookMark item){
+    private void deleteBookMark(BookMark item) {
         deleteBookMark(item.getPrimeKey());
     }
 
-    private void deleteBookMark(int primeKey){
+    private void deleteBookMark(int primeKey) {
         new DBTask().execute(DB_DELETE, String.valueOf(primeKey));
     }
 
-    private void getBookMarkList(){
+    private void getBookMarkList() {
         new DBTask().execute(DB_INITIAL);
 
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Main Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
     }
 
     class DBTask extends AsyncTask<String, Integer, String> {
         @Override
         protected String doInBackground(String... params) {
             DataBaseManager dbm = new DataBaseManager(mContext);
-            switch (params[0]){
+            switch (params[0]) {
                 case DB_INITIAL:
                     bookMarks = dbm.printList();
                     return DB_INITIAL;
                 case DB_INSERT:
-                    if(dbm.insert(params[1], params[2], params[3], params[4],params[5],params[6])){
+                    if (dbm.insert(params[1], params[2], params[3], params[4], params[5], params[6])) {
                         bookMarks = dbm.printList();
                         return DB_INSERT + DB_SUCC;
-                    }
-                    else return DB_INSERT + DB_FAIL;
+                    } else return DB_INSERT + DB_FAIL;
                 case DB_DELETE:
                     dbm.delete(params[1]);
                     bookMarks = dbm.printList();
@@ -305,16 +315,16 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
         @Override
         protected void onPostExecute(String s) {
-            if(bookMarkAdapter != null) bookMarkAdapter.notifyDataSetChanged();
+            if (bookMarkAdapter != null) bookMarkAdapter.notifyDataSetChanged();
             bookMarkAdapter = new BookMarkAdapter(mContext, bookMarks);
             bookMarkListView.setAdapter(bookMarkAdapter);
-            switch (s){
+            switch (s) {
                 case DB_INITIAL:
                     break;
-                case DB_INSERT+DB_FAIL:
+                case DB_INSERT + DB_FAIL:
                     Toast.makeText(MainActivity.this, "이미 추가되어 있습니다.", Toast.LENGTH_SHORT).show();
                     break;
-                case DB_INSERT+DB_SUCC:
+                case DB_INSERT + DB_SUCC:
                     Toast.makeText(MainActivity.this, "즐겨찾기에 추가되었습니다.", Toast.LENGTH_SHORT).show();
                     break;
                 case DB_DELETE:
@@ -326,11 +336,11 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         }
     }
 
-    private void searchByKeyword(String keyword){
+    private void searchByKeyword(String keyword) {
         new SearchTask().execute(KEYWORD, keyword);
     }
 
-    private void searchByLocation(double lon, double lat){
+    private void searchByLocation(double lon, double lat) {
         new SearchTask().execute(LOCATION, String.valueOf(lon), String.valueOf(lat));
     }
 
@@ -338,16 +348,16 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     /**
      * 데이터 통신 관광 API로부터 관광지 정보를 받아와 리스트로 출력한다.
      */
-    class SearchTask extends AsyncTask<String, Integer, String> implements AdapterView.OnItemClickListener{
+    class SearchTask extends AsyncTask<String, Integer, String> implements AdapterView.OnItemClickListener {
 
         private URL url = null;
         HttpURLConnection connection = null;
 
         @Override
-        protected String  doInBackground(String... params) {
-            String keyword = "", lon="", lat="";
+        protected String doInBackground(String... params) {
+            String keyword = "", lon = "", lat = "";
 
-            if(params[0].equals(KEYWORD)){
+            if (params[0].equals(KEYWORD)) {
                 try {
                     keyword = URLEncoder.encode(params[1], "UTF-8");
                 } catch (IOException e) {
@@ -361,7 +371,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             Log.d("Test", "SearchTask is doing");
 
             try {
-                if(params[0].equals(KEYWORD)){
+                if (params[0].equals(KEYWORD)) {
                     url = new URL(AA_StaticDatas.TOUR_API_KEYWORD + keyword);
                 } else {
                     url = new URL(AA_StaticDatas.TOUR_API_LOCATION_BASED_LIST +
@@ -388,7 +398,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if(params[0].equals(KEYWORD)) return KEYWORD;
+            if (params[0].equals(KEYWORD)) return KEYWORD;
             else return LOCATION;
         }
 
@@ -396,8 +406,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         protected void onPostExecute(String param) {
             locationAdapter = new LocationAdapter(locationItems, mContext);
             Log.d("Test", "parsed item : " + locationItems.toString());
-            if(param.equals(KEYWORD)){
+            if (param.equals(KEYWORD)) {
                 searchListView.setAdapter(locationAdapter);
+                searchListView.setOnItemClickListener(searchListener);
                 showLIst();
                 View v = getCurrentFocus();
                 if (v != null) {
@@ -424,10 +435,10 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             }
         }
 
-        private void showLocationBasedList(LocationAdapter locationAdapter){
+        private void showLocationBasedList(LocationAdapter locationAdapter) {
             View tempView = View.inflate(MainActivity.this, R.layout.zz_dialogue, null);
             ListView newListView = (ListView) tempView.findViewById(R.id.searchListView);
-            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(mData.getWidth()*4/5, mData.getWidth()*4/5);
+            LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(mData.getWidth() * 4 / 5, mData.getWidth() * 4 / 5);
             newListView.setLayoutParams(llp);
             newListView.setAdapter(locationAdapter);
             //custom
@@ -443,10 +454,16 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                     }).create();
             dialog.show();
         }
-
+        private AdapterView.OnItemClickListener searchListener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                addPin(locationItems.get(position));
+                hideList();
+            }
+        };
         @Override
         //아이템 클릭
-        public void onItemClick(AdapterView<?> parent, View v, int position, long id){
+        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
             addPin(locationItems.get(position));
             addPolyLine(locationItems.get(position).getLatitude(), locationItems.get(position).getLongitude());
             dialog.dismiss();
@@ -462,15 +479,16 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
     /**
      * 핀 꽂기 관광지
+     *
      * @param item 관광지 객체
      */
-    private void addPin(LocationItem item){
-        Item search_item=new Item();
+    private void addPin(LocationItem item) {
+        Item search_item = new Item();
         search_item.setTitle(item.getTitle());
-        search_item.address=item.getAddress();
-        search_item.phone=item.getPhoneNumber();
-        search_item.imageUrl=item.getFirstImgUrl();
-        if(search_item.category==null) search_item.category = "관광";
+        search_item.address = item.getAddress();
+        search_item.phone = item.getPhoneNumber();
+        search_item.imageUrl = item.getFirstImgUrl();
+        if (search_item.category == null) search_item.category = "관광";
         MapPOIItem marker = new MapPOIItem();
         marker.setItemName("Default Marker");
 
@@ -484,27 +502,28 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         mapView.addPOIItem(marker);
         mTagItemMap.put(marker.getTag(), search_item);
         mapView.moveCamera(CameraUpdateFactory.newMapPoint(MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude())));
-        Toast.makeText(getApplicationContext(), marker.getTag()+"이동하였습니다.", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), marker.getTag() + "이동하였습니다.", Toast.LENGTH_SHORT).show();
     }
 
-      /**
+    /**
      * 핀 꽂기 북마크
+     *
      * @param item 북마크 객체
      */
-    private void addPin(BookMark item){
-        Item search_item=new Item();
+    private void addPin(BookMark item) {
+        Item search_item = new Item();
         search_item.setTitle(item.getTitle());
-        search_item.address=item.getAddress();
-        search_item.phone=item.getPhone();
-        if(search_item.category==null) search_item.category = "북마크";
+        search_item.address = item.getAddress();
+        search_item.phone = item.getPhone();
+        if (search_item.category == null) search_item.category = "북마크";
         MapPOIItem marker = new MapPOIItem();
         marker.setItemName("Default Marker");
-        marker.setTag(200+(int)(rand*-100)+1);
+        marker.setTag(intval2++);
         marker.setMapPoint(MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude()));
-        marker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 기본으로 제공하는 BluePin 마커 모양.
-        marker.setCustomImageResourceId(R.drawable.picker_blue); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+        marker.setMarkerType(MapPOIItem.MarkerType.CustomImage);
+        marker.setCustomImageResourceId(R.drawable.picker_yellow);
         marker.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
-        marker.setCustomSelectedImageResourceId(R.drawable.picker_green);
+        marker.setCustomSelectedImageResourceId(R.drawable.picker_pink);
         marker.setCustomImageAutoscale(false);
         mapView.addPOIItem(marker);
         mTagItemMap.put(marker.getTag(), search_item);
@@ -513,14 +532,15 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
     /**
      * 폴리라인 그리기 검색지-관광지
+     *
      * @param lat 위도
-     * @param lon   경도
+     * @param lon 경도
      */
 
-    private void addPolyLine(double lat, double lon){
+    private void addPolyLine(double lat, double lon) {
         mapView.removeAllPolylines();
         MapPolyline polyline = new MapPolyline();
-        polyline.setTag(1000+(int)(rand*100)+1);
+        polyline.setTag(1000 + (int) (rand * 100) + 1);
         polyline.setLineColor(Color.argb(128, 255, 51, 0)); // Polyline 컬러 지정.
         polyline.addPoint(MapPoint.mapPointWithGeoCoord(lat, lon));
         polyline.addPoint(c_map);
@@ -532,28 +552,31 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
     /**
      * 폴리라인 그리기 북마크-관광지
+     *
      * @param startItem 시작점
      * @param endItem   끝점
      */
-    private void addPolyLine(BookMark startItem, LocationItem endItem){
+    private void addPolyLine(BookMark startItem, LocationItem endItem) {
 
     }
 
     /**
      * 폴리라인 그리기 관광지-북마크
+     *
      * @param startItem 시작점
      * @param endItem   끝점
      */
-    private void addPolyLine(LocationItem startItem, BookMark endItem){
+    private void addPolyLine(LocationItem startItem, BookMark endItem) {
 
     }
 
     /**
      * 폴리라인 그리기 북마크-북마크
+     *
      * @param startItem 시작점
      * @param endItem   끝점
      */
-    private void addPolyLine(BookMark startItem, BookMark endItem){
+    private void addPolyLine(BookMark startItem, BookMark endItem) {
 
     }
 
@@ -567,6 +590,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
         mapView.setShowCurrentLocationMarker(false);
     }
+
     @Override
     public void onCurrentLocationUpdate(MapView mapView, MapPoint currentLocation, float accuracyInMeters) {
         MapPoint.GeoCoordinate mapPointGeo = currentLocation.getMapPointGeoCoord();
@@ -575,6 +599,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
         Log.i(LOG_TAG, String.format("MapView onCurrentLocationUpdate (%f,%f) accuracy (%f)", mapPointGeo.latitude, mapPointGeo.longitude, accuracyInMeters));
     }
+
     @Override
     public void onCurrentLocationDeviceHeadingUpdate(MapView mapView, float v) {
 
@@ -589,45 +614,43 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     public void onCurrentLocationUpdateCancelled(MapView mapView) {
 
     }
+
     private void onFinishReverseGeoCoding(String result) {
         Toast.makeText(MainActivity.this, "Reverse Geo-coding : " + result, Toast.LENGTH_SHORT).show();
     }
+
     @Override
     public void onDaumMapOpenAPIKeyAuthenticationResult(MapView mapView, int resultCode, String resultMessage) {
         Log.i(LOG_TAG, String.format("Open API Key Authentication Result : code=%d, message=%s", resultCode, resultMessage));
     }
+
     @Override
     public void onMapViewCenterPointMoved(MapView mapView, MapPoint mapCenterPoint) {
         MapPoint.GeoCoordinate mapPointGeo = mapCenterPoint.getMapPointGeoCoord();
         Log.i(LOG_TAG, String.format("MapView onMapViewCenterPointMoved (%f,%f)", mapPointGeo.latitude, mapPointGeo.longitude));
     }
+
     @Override
     public void onMapViewDoubleTapped(MapView mapView, MapPoint mapPoint) {
 
         MapPoint.GeoCoordinate mapPointGeo = mapPoint.getMapPointGeoCoord();
 
-//        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-//        alertDialog.setTitle("DaumMapLibrarySample");
-//        alertDialog.setMessage(String.format("Double-Tap on (%f,%f)", mapPointGeo.latitude, mapPointGeo.longitude));
-//        alertDialog.setPositiveButton("OK", null);
-//        alertDialog.show();
     }
+
     @Override
     public void onMapViewLongPressed(MapView mapView, MapPoint mapPoint) {
 
         MapPoint.GeoCoordinate mapPointGeo = mapPoint.getMapPointGeoCoord();
 
-//        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-//        alertDialog.setTitle("DaumMapLibrarySample");
-//        alertDialog.setMessage(String.format("Long-Press on (%f,%f)", mapPointGeo.latitude, mapPointGeo.longitude));
-//        alertDialog.setPositiveButton("OK", null);
-//        alertDialog.show();
+
     }
+
     @Override
     public void onMapViewSingleTapped(MapView mapView, MapPoint mapPoint) {
         MapPoint.GeoCoordinate mapPointGeo = mapPoint.getMapPointGeoCoord();
         Log.i(LOG_TAG, String.format("MapView onMapViewSingleTapped (%f,%f)", mapPointGeo.latitude, mapPointGeo.longitude));
     }
+
     @Override
     public void onMapViewDragStarted(MapView mapView, MapPoint mapPoint) {
         MapPoint.GeoCoordinate mapPointGeo = mapPoint.getMapPointGeoCoord();
@@ -646,6 +669,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         MapPoint.GeoCoordinate mapPointGeo = mapPoint.getMapPointGeoCoord();
         Log.i(LOG_TAG, String.format("MapView onMapViewMoveFinished (%f,%f)", mapPointGeo.latitude, mapPointGeo.longitude));
     }
+
     @Override
     public void onMapViewZoomLevelChanged(MapView mapView, int zoomLevel) {
         Log.i(LOG_TAG, String.format("MapView onMapViewZoomLevelChanged (%d)", zoomLevel));
@@ -662,6 +686,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     public void onReverseGeoCoderFailedToFindAddress(MapReverseGeoCoder mapReverseGeoCoder) {
         onFinishReverseGeoCoding("Fail");
     }
+
     //검색기능 추가
     class CustomCalloutBalloonAdapter implements CalloutBalloonAdapter {
 
@@ -670,6 +695,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         public CustomCalloutBalloonAdapter() {
             mCalloutBalloon = getLayoutInflater().inflate(R.layout.custom_callout_balloon, null);
         }
+
         //말풍선
         @Override
         public View getCalloutBalloon(MapPOIItem poiItem) {
@@ -678,16 +704,18 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             if (item == null) return null;
             DataBaseManager dbm = new DataBaseManager(mContext);
             bookMarks = dbm.printList();
-            Iterator<BookMark> iterator =bookMarks.iterator();
-            String name= null;
+            Iterator<BookMark> iterator = bookMarks.iterator();
+            String name = null;
             ImageView imageViewBadge = (ImageView) mCalloutBalloon.findViewById(R.id.badge);
-            while (iterator.hasNext()){
-
-                BookMark b = (BookMark)iterator.next();
-                name=b.getTitle();
-                if(name.equals(item.getTitle())){
+            while (iterator.hasNext()) {
+                BookMark b = iterator.next();
+                name = b.getTitle();
+                if (name.equals(item.getTitle())) {
+                    Log.i(LOG_TAG + "즐겨찾기 맞음", name + ":" + item.getTitle());
                     imageViewBadge.setImageResource(R.drawable.star_on);
-                }else{
+                    break;
+                } else {
+                    Log.i(LOG_TAG + "즐겨찾기 아님", name + ":" + item.getTitle());
                     imageViewBadge.setImageResource(R.drawable.star_off);
                 }
             }
@@ -696,10 +724,10 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             textViewTitle.setText(item.getTitle());
             TextView textViewDesc = (TextView) mCalloutBalloon.findViewById(R.id.desc);
             textViewDesc.setText(item.address);
-            if(item.category.equals("관광")){
+            if (item.category.equals("관광")) {
                 imageViewBadge.setImageDrawable(createDrawableFromUrl(item.imageUrl));
             }
-            t_map=poiItem.getMapPoint();
+            t_map = poiItem.getMapPoint();
 
             return mCalloutBalloon;
         }
@@ -710,6 +738,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         }
 
     }
+
     public void onMapViewInitialized(MapView mapView) {
         Log.i(LOG_TAG, "MapView had loaded. Now, MapView APIs could be called safely");
 
@@ -747,7 +776,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             poiItem.setCustomImageResourceId(R.drawable.picker_yellow);
             poiItem.setSelectedMarkerType(MapPOIItem.MarkerType.CustomImage);
             poiItem.setCustomSelectedImageResourceId(R.drawable.picker_pink);
-           // poiItem.setCustomSelectedImageBitmap(bitmap);
+            // poiItem.setCustomSelectedImageBitmap(bitmap);
             poiItem.setCustomImageAutoscale(false);
             poiItem.setCustomImageAnchor(0.5f, 1.0f);
 
@@ -776,6 +805,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             return null;
         }
     }
+
     private Object fetch(String address) throws MalformedURLException, IOException {
         URL url = new URL(address);
         Object content = url.getContent();
@@ -785,9 +815,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     //말풍선 커스텀
 
     @Override
-    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
+    public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType)  {
         final Item item = mTagItemMap.get(mapPOIItem.getTag());
-        Toast.makeText(this, "api는"+item.category+"tag는"+mapPOIItem.getTag(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "api는" + item.category + "tag는" + mapPOIItem.getTag(), Toast.LENGTH_SHORT).show();
         StringBuilder sb = new StringBuilder();
         sb.append(item.getTitle()).append("\n");
         sb.append(item.address).append("\n");
@@ -795,8 +825,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         alertDialog.setIcon(R.mipmap.ic_launcher);
         alertDialog.setTitle("한복이랑");
-        alertDialog.setMessage( sb.toString());
-        if(item.category.equals("관광")){
+        alertDialog.setMessage(sb.toString());
+        if (item.category.equals("관광")) {
             alertDialog.setPositiveButton("전화걸기", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -805,24 +835,48 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 }
             });
             alertDialog.setNegativeButton("닫기", null);
-        }
-        else {
+        } else {
             alertDialog.setPositiveButton("관광지추천받기", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    if(!item.category.equals("관광")) c_map=t_map;
+                    if (!item.category.equals("관광")) c_map = t_map;
 
                     searchByLocation(item.getLongitude(), item.getLatitude());
 
                 }
             });
-            alertDialog.setNegativeButton("즐겨찾기", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    BookMark bookMark = new BookMark(item.id, item.getTitle(), Double.toString(item.getLongitude()), Double.toString(item.getLatitude()),item.address,item.phone);
-                    insertBookMark(bookMark);
+            DataBaseManager dbm = new DataBaseManager(mContext);
+            bookMarks = dbm.printList();
+            Iterator<BookMark> iterator = bookMarks.iterator();
+            String name = null;
+            boolean bm =false;
+            while (iterator.hasNext()) {
+                BookMark b = iterator.next();
+                name = b.getTitle();
+                if (name.equals(item.getTitle())) {
+                    bm=true;
+                    Log.i(LOG_TAG + "즐찾 없애야함", name + ":" + item.getTitle()+bm);
+                    break;
+                }else{
+                    bm=false;
+                    Log.i(LOG_TAG + "즐찾 업애면안됨", name + ":" + item.getTitle());
                 }
-            });
+            }
+            Log.i(LOG_TAG + "마지막 bm", name + ":" + item.getTitle()+"bm:"+bm);
+            if(bm==false){
+                alertDialog.setNegativeButton("즐겨찾기", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+//                        View mCalloutBalloon = getLayoutInflater().inflate(R.layout.custom_callout_balloon, null);
+//                        ImageView imageViewBadge = (ImageView)mCalloutBalloon.findViewById(R.id.badge);
+//                        imageViewBadge.setImageResource(R.drawable.star_on);
+
+                        BookMark bookMark = new BookMark(item.id, item.getTitle(), Double.toString(item.getLongitude()), Double.toString(item.getLatitude()), item.address, item.phone);
+                        insertBookMark(bookMark);
+                        findHanbok();
+                    }
+                });
+            }
             alertDialog.setNeutralButton("전화 걸기", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -847,13 +901,13 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     public void onPOIItemSelected(MapView mapView, MapPOIItem mapPOIItem) {
     }
 
-    private void showLIst(){
+    private void showLIst() {
         searchListView.setVisibility(View.VISIBLE);
         container.setVisibility(View.GONE);
         visibleBackBtn(true);
     }
 
-    private void hideList(){
+    private void hideList() {
         searchListView.setVisibility(View.GONE);
         container.setVisibility(View.VISIBLE);
         visibleBackBtn(false);
@@ -861,24 +915,26 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
     @Override
     public void onBackPressed() {
-        if(searchListView.getVisibility() == View.VISIBLE){
+        mapView.removeAllPolylines();
+        mapView.removeAllCircles();
+        mapView.removeAllPOIItems();
+        if (searchListView.getVisibility() == View.VISIBLE) {
             hideList();
         } else super.onBackPressed();
     }
 
 
-
     /**
      * 드로워가 열려있으면 true, 닫혀있으면 false
+     *
      * @param activated
      */
     @Override
     protected void searchEditTextActivated(Boolean activated) {
         super.searchEditTextActivated(activated);
-        if(activated) {
+        if (activated) {
             searchLayout.setVisibility(View.INVISIBLE);
-        }
-        else {
+        } else {
             searchLayout.setVisibility(View.VISIBLE);
         }
     }
@@ -893,5 +949,44 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     public void closeDrawer() {
         super.closeDrawer();
 
+    }
+    public void findHanbok(){
+        ImageView imgview = (ImageView) findViewById(R.id.mapFunctionMyLocation);
+        imgview.setImageResource(R.drawable.my_location_2);
+        mapView.setCurrentLocationTrackingMode(MapView.CurrentLocationTrackingMode.TrackingModeOff);
+        mapView.setShowCurrentLocationMarker(false);
+        mapView.removeAllCircles();
+        String query = "한복대여점";
+        MapPoint.GeoCoordinate geoCoordinate = mapView.getMapCenterPoint().getMapPointGeoCoord();
+        double latitude = geoCoordinate.latitude; // 위도
+        double longitude = geoCoordinate.longitude; // 경도
+        int radius = 250; // 중심 좌표부터의 반경거리. 특정 지역을 중심으로 검색하려고 할 경우 사용. meter 단위 (0 ~ 10000)
+        int page = 1; // 페이지 번호 (1 ~ 3). 한페이지에 15개
+        String apikey = DAUM_MAPS_ANDROID_APP_API_KEY;
+
+        Searcher searcher = new Searcher(); // net.daum.android.map.openapi.search.Searcher
+        searcher.searchKeyword(getApplicationContext(), query, latitude, longitude, radius, page, apikey, new OnFinishSearchListener() {
+            @Override
+            public void onSuccess(List<Item> itemList) {
+                mapView.removeAllPOIItems(); // 기존 검색 결과 삭제
+                mapView.removeAllPolylines();
+                showResult(itemList); // 검색 결과 보여줌
+            }
+
+            @Override
+            public void onFail() {
+                showToast("API_KEY의 제한 트래픽이 초과되었습니다.");
+            }
+        });
+
+
+        MapCircle circle1 = new MapCircle(
+                MapPoint.mapPointWithGeoCoord(latitude, longitude), // center
+                350, // radius
+                Color.argb(77, 255, 165, 0), // strokeColor
+                Color.argb(77, 255, 255, 0) // fillColor
+        );
+        circle1.setTag(1234);
+        mapView.addCircle(circle1);
     }
 }

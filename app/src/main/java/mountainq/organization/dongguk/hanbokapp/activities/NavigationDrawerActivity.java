@@ -106,6 +106,7 @@ public abstract class NavigationDrawerActivity extends SActivity implements Navi
             closeDrawer();
         } else if(pressedTime+ 2000 < System.currentTimeMillis()) {
             pressedTime = System.currentTimeMillis();
+
             Toast.makeText(NavigationDrawerActivity.this, "종료키를 한번 더 눌러주세요", Toast.LENGTH_SHORT).show();
         } else super.onBackPressed();
     }
