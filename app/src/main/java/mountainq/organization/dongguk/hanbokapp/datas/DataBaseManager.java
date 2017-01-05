@@ -20,7 +20,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
 
     private static final String TAG = "SQL_test";
     public static final String DB_NAME = "Hanbok.db";
-    public static final int DB_VERSION = 5;
+    public static final int DB_VERSION = 10;
 
     public static class DataEntry implements BaseColumns {
         public static final String TABLE_NAME = "bookmark";
@@ -29,6 +29,8 @@ public class DataBaseManager extends SQLiteOpenHelper {
         public static final String COLUMN_LOCATION_NAME = "locationName";
         public static final String COLUMN_LON = "longitude";
         public static final String COLUMN_LAT = "latitude";
+        public static final String COLUMN_ADDRESS= "address";
+        public static final String COLUMN_PHONE = "phone";
     }
 
     private static final String TEXT_TYPE = " TEXT";
@@ -40,7 +42,9 @@ public class DataBaseManager extends SQLiteOpenHelper {
                     DataEntry.COLUMN_PRIMEKEY + INTEGER_TYPE + COMMA_SEP +
                     DataEntry.COLUMN_LOCATION_NAME + TEXT_TYPE + COMMA_SEP +
                     DataEntry.COLUMN_LON + TEXT_TYPE + COMMA_SEP +
-                    DataEntry.COLUMN_LAT + TEXT_TYPE + " )";
+                    DataEntry.COLUMN_LAT + TEXT_TYPE + COMMA_SEP +
+                    DataEntry.COLUMN_ADDRESS + TEXT_TYPE + COMMA_SEP +
+                    DataEntry.COLUMN_PHONE + TEXT_TYPE +" )";
     private static final String SQL_DELETE_BOOKMARK =
             "DROP TABLE IF EXISTS " + DataEntry.TABLE_NAME;
 
@@ -65,8 +69,8 @@ public class DataBaseManager extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public boolean insert(String primeKey, String locationName, String lon, String lat) {
-        Log.d(TAG, "insert primeKey : " + primeKey + "  locationName : " + locationName + "  lon : " + lon + "  lat : " + lat);
+    public boolean insert(String primeKey, String locationName, String lon, String lat, String address, String phone) {
+        Log.d(TAG, "insert primeKey : " + primeKey + "  locationName : " + locationName + "  lon : " + lon + "  lat : " + lat+ "  address : " + address+ "  lat : " + phone);
         if (find(primeKey) != null) return false;
 
         SQLiteDatabase db = getWritableDatabase();
@@ -75,6 +79,8 @@ public class DataBaseManager extends SQLiteOpenHelper {
         values.put(DataEntry.COLUMN_LOCATION_NAME, locationName);
         values.put(DataEntry.COLUMN_LON, lon);
         values.put(DataEntry.COLUMN_LAT, lat);
+        values.put(DataEntry.COLUMN_ADDRESS, address);
+        values.put(DataEntry.COLUMN_PHONE, phone);
         long newRowId = db.insert(DataEntry.TABLE_NAME, null, values);
         Log.d(TAG, "inserted item ===> newRowId :" + newRowId);
         db.close();
@@ -110,7 +116,9 @@ public class DataBaseManager extends SQLiteOpenHelper {
                 DataEntry.COLUMN_PRIMEKEY,
                 DataEntry.COLUMN_LOCATION_NAME,
                 DataEntry.COLUMN_LON,
-                DataEntry.COLUMN_LAT
+                DataEntry.COLUMN_LAT,
+                DataEntry.COLUMN_ADDRESS,
+                DataEntry.COLUMN_PHONE
         };
 
         String selection = DataEntry.COLUMN_PRIMEKEY + " = ?";
@@ -119,7 +127,7 @@ public class DataBaseManager extends SQLiteOpenHelper {
         try {
             Cursor c = db.query(DataEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, null);
             c.moveToFirst();
-            item = new BookMark(c.getInt(1), c.getString(2), c.getDouble(3), c.getDouble(4));
+            item = new BookMark(c.getInt(1), c.getString(2), c.getDouble(3), c.getDouble(4), c.getString(5), c.getString(6));
             c.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -147,19 +155,21 @@ public class DataBaseManager extends SQLiteOpenHelper {
                 DataEntry.COLUMN_PRIMEKEY,
                 DataEntry.COLUMN_LOCATION_NAME,
                 DataEntry.COLUMN_LON,
-                DataEntry.COLUMN_LAT
+                DataEntry.COLUMN_LAT,
+                DataEntry.COLUMN_ADDRESS,
+                DataEntry.COLUMN_PHONE
         };
         try {
             Cursor c = db.query(DataEntry.TABLE_NAME, projection, null, null, null, null, null);
             c.moveToFirst();
 
             //인덱스가 하나밖에 없는 경우
-            BookMark item = new BookMark(c.getInt(1), c.getString(2), c.getDouble(3), c.getDouble(4));
+            BookMark item = new BookMark(c.getInt(1), c.getString(2), c.getDouble(3), c.getDouble(4), c.getString(5), c.getString(6));
             items.add(item);
 
             //이외에 다수인 경우 반복문
             while (c.moveToNext()) {
-                item = new BookMark(c.getInt(1), c.getString(2), c.getDouble(3), c.getDouble(4));
+                item = new BookMark(c.getInt(1), c.getString(2), c.getDouble(3), c.getDouble(4), c.getString(5), c.getString(6));
                 items.add(item);
             }
             c.close();
