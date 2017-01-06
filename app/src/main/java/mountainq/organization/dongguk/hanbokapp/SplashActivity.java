@@ -35,7 +35,7 @@ public class SplashActivity extends AppCompatActivity {
                 Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         logo = (ImageView) findViewById(R.id.logo);
         corpMessage = (TextView) findViewById(R.id.corpMessage);
-        corpMessage.setText("Hanbok Corp");
+        corpMessage.setText("스타트업 한복이랑");
         corpMessage.setTextColor(0xffffffff);
         LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(mData.getWidth()*5/7, mData.getWidth()*5/7);
         logo.setLayoutParams(llp);

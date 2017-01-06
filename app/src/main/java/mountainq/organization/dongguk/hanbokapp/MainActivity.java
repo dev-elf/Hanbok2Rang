@@ -6,9 +6,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -113,10 +115,43 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     private ArrayList<LocationItem> locationItems = new ArrayList<>();
     LinearLayout searchLayout;
 
+    /**
+     * GPS 설정 체크
+     */
+    private boolean chkGpsService() {
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        boolean isGPS = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if(isGPS){
+            return true;
+        } else {
+            final AlertDialog.Builder gsDialog = new AlertDialog.Builder(MainActivity.this);
+            gsDialog.setTitle("GPS가 필요합니다")
+                    .setMessage("무선 네트워크와 GPS 사용이 모두 필요합니다. 설정 하시겠습니까?")
+                    .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            intent.addCategory(Intent.CATEGORY_DEFAULT);
+                            startActivityForResult(intent, 0);
+                        }
+                    })
+                    .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            showToast("서비스가 불가합니다.");
+                            finish();
+                        }
+                    }).create();
+            gsDialog.show();
+        }
+        return false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, R.layout.activity_main);
         mContext = this;
+        chkGpsService();
         container = (RelativeLayout) findViewById(R.id.container);
         searchListView = (ListView) findViewById(R.id.searchListView);
         searchEditText = (EditText) findViewById(R.id.searchet);
