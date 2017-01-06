@@ -52,6 +52,7 @@ import mountainq.organization.dongguk.hanbokapp.datas.AA_StaticDatas;
 import mountainq.organization.dongguk.hanbokapp.datas.BookMark;
 import mountainq.organization.dongguk.hanbokapp.datas.DataBaseManager;
 import mountainq.organization.dongguk.hanbokapp.datas.LocationItem;
+import mountainq.organization.dongguk.hanbokapp.managers.LOG;
 import mountainq.organization.dongguk.hanbokapp.parsers.TourAPIParser;
 import mountainq.organization.dongguk.hanbokapp.search.Item;
 import mountainq.organization.dongguk.hanbokapp.search.OnFinishSearchListener;
@@ -228,8 +229,11 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 mapView.zoomOut(true);
                 break;
             case R.id.searchbtn:
-                searchByKeyword(searchEditText.getText().toString());
-//                searchEditText.setText("");
+                String s = searchEditText.getText().toString();
+                if (!s.equals(""))
+                    searchByKeyword(searchEditText.getText().toString());
+                else
+                    Toast.makeText(MainActivity.this, "검색어를 입력해주세요", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -428,6 +432,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         @Override
         //아이템 클릭
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+            LOG.D("item " + locationItems.get(position).getTitle() + " is clicked");
             addPin(locationItems.get(position));
             addPolyLine(locationItems.get(position).getLatitude(), locationItems.get(position).getLongitude());
             dialog.dismiss();
@@ -468,6 +473,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         mapView.addPOIItem(marker);
         mTagItemMap.put(marker.getTag(), search_item);
         mapView.moveCamera(CameraUpdateFactory.newMapPoint(MapPoint.mapPointWithGeoCoord(item.getLatitude(), item.getLongitude())));
+        LOG.D(marker.getTag() + " 이동하였습니다.");
         //Toast.makeText(getApplicationContext(), marker.getTag() + "이동하였습니다.", Toast.LENGTH_SHORT).show();
     }
 
