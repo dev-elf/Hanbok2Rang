@@ -3,13 +3,19 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
+    android:padding="30dp"
     android:background="@color/colorAccent">
 
-    <ImageView
-        android:id="@+id/logo"
-        android:scaleType="fitXY"
-        android:layout_gravity="center"
-        android:layout_width="100dp"
-        android:layout_height="100dp" />
+        <ImageView
+            android:id="@+id/logo"
+            android:scaleType="fitXY"
+            android:layout_gravity="center"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
+        <TextView
+            android:id="@+id/corpMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
 </LinearLayout>

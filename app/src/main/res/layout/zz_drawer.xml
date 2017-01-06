@@ -51,7 +51,8 @@
             android:text="@string/g1_menu1" />
     </LinearLayout>
 
-    <LinearLayout style="@style/menuLayout">
+    <LinearLayout style="@style/menuLayout"
+        android:layout_marginTop="2dp">
 
         <TextView
             android:id="@+id/g1_menu2"

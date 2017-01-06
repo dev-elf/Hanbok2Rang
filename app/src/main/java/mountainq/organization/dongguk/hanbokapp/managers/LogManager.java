@@ -13,7 +13,7 @@ public class LogManager {
     public static final String D = "debug";
     public static final String E = "error";
 
-    public void logMessage(String LEVEL, String MESSAGE){
+    public static void logMessage(String LEVEL, String MESSAGE){
 
         switch (LEVEL){
             case D:

@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -24,6 +25,7 @@ public class SplashActivity extends AppCompatActivity {
     private AA_StaticDatas mData = AA_StaticDatas.getInstance();
 
     ImageView logo;
+    TextView corpMessage;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,8 +34,12 @@ public class SplashActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]{
                 Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         logo = (ImageView) findViewById(R.id.logo);
+        corpMessage = (TextView) findViewById(R.id.corpMessage);
+        corpMessage.setText("Hanbok Corp");
+        corpMessage.setTextColor(0xffffffff);
         LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(mData.getWidth()*5/7, mData.getWidth()*5/7);
         logo.setLayoutParams(llp);
+
         Picasso.with(this).load(R.drawable.hanbok_logo).fit().into(logo);
         new SplashTask().execute();
     }

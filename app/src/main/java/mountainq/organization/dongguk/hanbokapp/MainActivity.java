@@ -229,7 +229,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
                 break;
             case R.id.searchbtn:
                 searchByKeyword(searchEditText.getText().toString());
-                searchEditText.setText("");
+//                searchEditText.setText("");
                 break;
         }
     }
@@ -248,21 +248,6 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
     private void getBookMarkList() {
         new DBTask().execute(DB_INITIAL);
-
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-
     }
 
     class DBTask extends AsyncTask<String, Integer, String> {
@@ -270,15 +255,15 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         protected String doInBackground(String... params) {
             DataBaseManager dbm = new DataBaseManager(mContext);
             switch (params[0]) {
-                case DB_INITIAL:
+                case DB_INITIAL: //어플 실행시 초기화
                     bookMarks = dbm.printList();
                     return DB_INITIAL;
-                case DB_INSERT:
+                case DB_INSERT: // 즐겨찾기 추가
                     if (dbm.insert(params[1], params[2], params[3], params[4], params[5], params[6])) {
                         bookMarks = dbm.printList();
                         return DB_INSERT + DB_SUCC;
                     } else return DB_INSERT + DB_FAIL;
-                case DB_DELETE:
+                case DB_DELETE: //즐겨찾기 삭제
                     dbm.delete(params[1]);
                     bookMarks = dbm.printList();
                     return DB_DELETE;
@@ -316,7 +301,6 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     private void searchByLocation(double lon, double lat) {
         new SearchTask().execute(LOCATION, String.valueOf(lon), String.valueOf(lat));
     }
-
 
     /**
      * 데이터 통신 관광 API로부터 관광지 정보를 받아와 리스트로 출력한다.
@@ -710,7 +694,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
             textViewDesc.setText(item.address);
             if (item.category.equals("관광")) {
                 imageViewBadge.setImageDrawable(createDrawableFromUrl(item.imageUrl));
-            }else{t_map = poiItem.getMapPoint();}
+            } else {
+                t_map = poiItem.getMapPoint();
+            }
 
 
             return mCalloutBalloon;
@@ -801,7 +787,8 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
     @Override
     public void onCalloutBalloonOfPOIItemTouched(MapView mapView, MapPOIItem mapPOIItem, MapPOIItem.CalloutBalloonButtonType calloutBalloonButtonType) {
         final Item item = mTagItemMap.get(mapPOIItem.getTag());
-        // Toast.makeText(this, "api는" + item.category + "tag는" + mapPOIItem.getTag() + "이름은" + item.getLatitude(), Toast.LENGTH_SHORT).show();
+        Log.d("test", "title : " + item.getTitle() + "    longitude : " + item.getLongitude() + "    latitude : " + item.getLatitude());
+        //Toast.makeText(this, "api는" + item.category + "tag는" + mapPOIItem.getTag(), Toast.LENGTH_SHORT).show();
         StringBuilder sb = new StringBuilder();
         sb.append(item.getTitle()).append("\n");
         sb.append(item.address).append("\n");
@@ -897,12 +884,15 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
     @Override
     public void onBackPressed() {
+        searchEditText.setText("");
         mapView.removeAllPolylines();
         mapView.removeAllCircles();
         mapView.removeAllPOIItems();
+
         if (searchListView.getVisibility() == View.VISIBLE) {
             hideList();
         } else super.onBackPressed();
+
     }
 
 
@@ -921,18 +911,11 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         }
     }
 
-    @Override
-    public void openDrawer() {
-        super.openDrawer();
-
-    }
-
-    @Override
-    public void closeDrawer() {
-        super.closeDrawer();
-
-    }
-
+    /**
+     * 근처의 한복대여점을 찾는 메소드
+     *
+     * @param rad 반경범위(m)
+     */
     public void findHanbok(int rad) {
         final int aa = rad;
         ImageView imgview = (ImageView) findViewById(R.id.mapFunctionMyLocation);
@@ -944,7 +927,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         MapPoint.GeoCoordinate geoCoordinate = mapView.getMapCenterPoint().getMapPointGeoCoord();
         double latitude = geoCoordinate.latitude; // 위도
         double longitude = geoCoordinate.longitude; // 경도
-        int radius = rad; // 중심 좌표부터의 반경거리. 특정 지역을 중심으로 검색하려고 할 경우 사용. meter 단위 (0 ~ 10000)
+        final int radius = rad; // 중심 좌표부터의 반경거리. 특정 지역을 중심으로 검색하려고 할 경우 사용. meter 단위 (0 ~ 10000)
         int page = 1; // 페이지 번호 (1 ~ 3). 한페이지에 15개
         String apikey = DAUM_MAPS_ANDROID_APP_API_KEY;
 
@@ -952,6 +935,9 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
         searcher.searchKeyword(getApplicationContext(), query, latitude, longitude, radius, page, apikey, new OnFinishSearchListener() {
             @Override
             public void onSuccess(List<Item> itemList) {
+//                if (radius < 550) findHanbok(radius + 100);
+//                else if (itemList.size() < 1) showToast("검색결과가 없습니다.");
+                Log.d("test", "itemList.size() : " + itemList.size());
                 mapView.removeAllPOIItems(); // 기존 검색 결과 삭제
                 mapView.removeAllPolylines();
                 showResult(itemList); // 검색 결과 보여줌
@@ -964,7 +950,7 @@ public class MainActivity extends NavigationDrawerActivity implements MapView.Op
 
             @Override
             public void onFail() {
-                showToast("API_KEY의 제한 트래픽이 초과되었습니다.");
+                showToast("이 부근에는 없습니다.");
             }
         });
 

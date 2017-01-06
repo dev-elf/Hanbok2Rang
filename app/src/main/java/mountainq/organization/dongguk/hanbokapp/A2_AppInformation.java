@@ -36,7 +36,7 @@ public class A2_AppInformation extends SActivity {
         intro.setGravity(Gravity.CENTER);
         ((TextView) intro.getChildAt(0)).setTextSize(18);
         setAPIInfo();
-        changeToolbarText("개발정보");
+        changeToolbarText("어플정보");
         visibleBackBtn(true);
     }
 

@@ -7,7 +7,6 @@ import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -51,7 +50,6 @@ public abstract class SActivity extends AppCompatActivity {
                 LinearLayout ll = new LinearLayout(this);
                 LinearLayout.LayoutParams llp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT,1);
                 ll.setLayoutParams(llp);
-                ll.setGravity(Gravity.CENTER);
                 ll = (LinearLayout) View.inflate(this, layout, null);
                 innerLayout.addView(ll);
                 Log.d("test", "레이아웃 위치 고정");
